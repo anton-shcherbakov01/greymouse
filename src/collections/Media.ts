@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import type { CollectionConfig } from 'payload'
 
@@ -31,11 +30,18 @@ export const Media: CollectionConfig = {
   },
   upload: {
     /*
-      Явный каталог для локального хранилища: без него Payload кладёт файлы
-      в `media/` рядом с конфигом, и они попадают в репозиторий.
-      В production включается S3 и этот путь не используется.
+      Каталог локального хранилища.
+
+      Путь считается от рабочей директории процесса, а не от расположения этого
+      файла: в standalone-сборке конфиг оказывается внутри .next/server/chunks,
+      и относительный путь от него указал бы не туда. В контейнере каталог
+      задаётся переменной MEDIA_DIR и монтируется томом.
+
+      Когда задан S3_BUCKET, включается S3-хранилище и этот путь не используется.
     */
-    staticDir: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../public/media'),
+    staticDir: process.env.MEDIA_DIR
+      ? path.resolve(process.env.MEDIA_DIR)
+      : path.resolve(process.cwd(), 'public/media'),
     mimeTypes: ALLOWED_MIME,
     focalPoint: true,
     crop: true,

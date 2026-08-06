@@ -1,0 +1,111 @@
+# Развёртывание «Серой Мыши» на сервер, где уже работают другие проекты.
+#
+# Отличия от docker-compose.yml в корне (тот — только для локальной разработки):
+#   • собирается и запускается само приложение, а не одна база;
+#   • порт публикуется на 127.0.0.1 — наружу сайт отдаёт nginx, правила ufw
+#     менять не нужно;
+#   • у базы нет опубликованного порта: она доступна только приложению;
+#   • миграции выполняются отдельным одноразовым сервисом до старта приложения;
+#   • у контейнеров и томов префикс `greymouse`, чтобы не пересечься с picglot,
+#     skilltest и ai-stack.
+#
+# Запуск из каталога репозитория:
+#   docker compose -f deploy/docker-compose.server.yml up -d --build
+
+name: greymouse
+
+services:
+  postgres:
+    # Тот же образ, что уже используется на сервере, — не тянет лишние слои.
+    image: postgres:17-alpine
+    container_name: greymouse-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-greymouse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD в .env}
+      POSTGRES_DB: ${POSTGRES_DB:-greymouse}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # Порт наружу не публикуется: база нужна только приложению и миграциям.
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-greymouse} -d ${POSTGRES_DB:-greymouse}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks: [internal]
+
+  # Одноразовый сервис: применяет миграции и завершается.
+  # Приложение стартует только после его успешного выхода.
+  migrate:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: migrator
+    image: greymouse-migrator:latest
+    restart: 'no'
+    env_file:
+      - .env
+    environment:
+      DATABASE_URI: postgres://${POSTGRES_USER:-greymouse}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-greymouse}
+      # Тот же каталог, что у приложения: через этот сервис запускается `pnpm seed`,
+      # а он загружает файлы в медиатеку. Без общего тома они бы потерялись
+      # вместе с одноразовым контейнером.
+      MEDIA_DIR: /app/media
+    volumes:
+      - media:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: runner
+    image: greymouse-app:latest
+    container_name: greymouse-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Значения ниже перекрывают .env: адрес базы и каталог медиа
+      # определяются топологией compose, а не файлом окружения.
+      DATABASE_URI: postgres://${POSTGRES_USER:-greymouse}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-greymouse}
+      MEDIA_DIR: /app/media
+      PORT: '3000'
+      HOSTNAME: 0.0.0.0
+    ports:
+      # Слушает только localhost: снаружи сайт доступен через nginx.
+      - '127.0.0.1:${APP_PORT:-3002}:3000'
+    volumes:
+      # Загруженные файлы переживают пересоздание контейнера.
+      - media:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fsS http://127.0.0.1:3000/healthz || exit 1']
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    # Ограничение памяти: на сервере 7.8 ГБ и уже занят swap.
+    deploy:
+      resources:
+        limits:
+          memory: ${APP_MEMORY_LIMIT:-1g}
+    networks: [internal]
+
+volumes:
+  postgres-data:
+    name: greymouse-postgres-data
+  media:
+    name: greymouse-media
+
+networks:
+  internal:
+    name: greymouse-internal

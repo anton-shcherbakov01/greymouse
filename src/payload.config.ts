@@ -61,6 +61,9 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   sharp,
+  // Отключаем отправку статистики: продакшену не нужны исходящие запросы,
+  // которых он не заказывал.
+  telemetry: false,
   upload: {
     limits: {
       // 25 МБ хватает для постеров и коротких видео и ограничивает злоупотребления.

@@ -81,7 +81,12 @@ out ""
 
 for bin in node npm pnpm yarn corepack docker git curl openssl psql nginx caddy certbot python3; do
   if have "$bin"; then
-    ver="$("$bin" --version 2>&1 | head -1)"
+    # nginx и openssl не понимают --version, у них свои флаги.
+    case "$bin" in
+      nginx)   ver="$(nginx -v 2>&1 | head -1)" ;;
+      openssl) ver="$(openssl version 2>&1 | head -1)" ;;
+      *)       ver="$("$bin" --version 2>&1 | head -1)" ;;
+    esac
     out "  ✓ $(printf '%-10s' "$bin") $(printf '%s' "$ver" | mask)"
   else
     out "  ✗ $(printf '%-10s' "$bin") не установлен"
@@ -170,9 +175,13 @@ if have nginx; then
   sub "Маршрутизация (только строки server_name / listen / proxy_pass / root)"
   out "Пароли в URL замаскированы. Остальные директивы не выводятся."
   if [ $IS_ROOT -eq 1 ] || [ -r /etc/nginx/nginx.conf ]; then
-    grep -rhE '^\s*(server_name|listen|proxy_pass|root|ssl_certificate)\s' \
-      /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null \
-      | sed -E 's/^\s+//' | mask | sort -u | sed 's/^/    /' >> "$REPORT"
+    # -R вместо -r: в sites-enabled лежат симлинки, обычный -r их не разворачивает.
+    for f in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*; do
+      [ -e "$f" ] || continue
+      out "  ── $(basename "$f") ──"
+      grep -hE '^[[:space:]]*(server_name|listen|proxy_pass|root|ssl_certificate)[[:space:]]' "$f" 2>/dev/null \
+        | sed -E 's/^[[:space:]]+//' | mask | sed 's/^/    /' >> "$REPORT"
+    done
   else
     out "    нет прав на чтение — перезапустите через sudo"
   fi
@@ -221,7 +230,27 @@ if have psql; then
     out "    нет доступа под пользователем postgres — перезапустите через sudo"
   fi
 else
-  out "psql не установлен. PostgreSQL может работать в Docker — см. раздел 3."
+  out "psql на хосте не установлен."
+fi
+
+sub "PostgreSQL внутри контейнеров"
+if have docker && docker info >/dev/null 2>&1; then
+  found=0
+  for c in $(docker ps --format '{{.Names}}' 2>/dev/null); do
+    img="$(docker inspect -f '{{.Config.Image}}' "$c" 2>/dev/null)"
+    case "$img" in
+      *postgres*|*pgvector*|*timescale*)
+        found=1
+        out "  контейнер $c ($img):"
+        docker exec "$c" psql -U postgres -tA -F' | ' \
+          -c "select datname, pg_get_userbyid(datdba), pg_size_pretty(pg_database_size(datname)) from pg_database where not datistemplate order by 1" \
+          2>&1 | sed 's/^/      /' >> "$REPORT"
+        ;;
+    esac
+  done
+  [ $found -eq 0 ] && out "    контейнеров с PostgreSQL не найдено"
+else
+  out "    Docker недоступен"
 fi
 
 # ── 7. Сертификаты ───────────────────────────────────────────────────────────
