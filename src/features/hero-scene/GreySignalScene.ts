@@ -1,146 +1,171 @@
-import {
-  AdditiveBlending,
-  BufferAttribute,
-  BufferGeometry,
-  Color,
-  Float32BufferAttribute,
-  IcosahedronGeometry,
-  LineBasicMaterial,
-  LineSegments,
-  Mesh,
-  PerspectiveCamera,
-  Points,
-  Scene,
-  ShaderMaterial,
-  Vector3,
-  WebGLRenderer,
-} from 'three'
+import { Color, Object3D, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three'
 
-import {
-  massFragmentShader,
-  massVertexShader,
-  particlesFragmentShader,
-  particlesVertexShader,
-} from './shaders'
+import { getHeroCtaTarget } from './heroInteractionStore'
+import { GreySignalCore } from './objects/GreySignalCore'
+import { HeroBackdrop } from './objects/HeroBackdrop'
+import { buildGrid, buildTrail, buildWhiskers, SignalLines } from './objects/SignalLines'
+import { SignalParticles } from './objects/SignalParticles'
+import { detectQuality, FrameCostMonitor, lowerTier, QUALITY, raiseTier } from './quality'
+import type { HeroFrame, HeroObject, QualityTier } from './types'
 
-export type QualityTier = 'low' | 'medium' | 'high'
+export type { QualityTier } from './types'
 
 type SceneOptions = {
   canvas: HTMLCanvasElement
   reducedMotion: boolean
 }
 
-/*
-  Детализация геометрии влияет на плавность силуэта сильнее, чем на стоимость
-  кадра: основная нагрузка — фрагментный шейдер и DPR. Поэтому даже на низком
-  уровне сетка остаётся достаточно плотной, а экономим на DPR и частицах.
-*/
-const QUALITY: Record<QualityTier, { subdivision: number; particles: number; maxDpr: number }> = {
-  low: { subdivision: 5, particles: 260, maxDpr: 1.25 },
-  medium: { subdivision: 5, particles: 620, maxDpr: 1.5 },
-  high: { subdivision: 6, particles: 1100, maxDpr: 1.75 },
-}
+const COLOR_DEEP = new Color('#0e1014')
+const COLOR_LIFT = new Color('#a8b0be')
+const COLOR_PARTICLE = new Color('#8a91a0')
+const COLOR_ACCENT = new Color('#c9f24a')
+const COLOR_GLOW = new Color('#2a3242')
 
-const COLOR_DEEP = new Color('#101216')
-const COLOR_LIFT = new Color('#aab2c0')
-const COLOR_SIGNAL = new Color('#c9f24a')
-const COLOR_PARTICLE = new Color('#7d8492')
+/** Длительность вступления. Верхняя граница диапазона из концепции. */
+const INTRO_SECONDS = 2.2
+
+/** Экспоненциальное сглаживание, независимое от частоты кадров. */
+const damp = (current: number, target: number, lambda: number, delta: number): number =>
+  current + (target - current) * (1 - Math.exp(-lambda * delta))
 
 /**
  * Сцена Grey Signal.
  *
- * Класс намеренно не знает про React: он управляет только WebGL и своим циклом
- * рендера. Жизненный цикл (пауза вне вьюпорта, скрытая вкладка, потеря контекста)
- * — тоже его ответственность, чтобы вызывающий код оставался тривиальным.
+ * Оркестратор: владеет рендерером, камерой и состоянием кадра, раздаёт это
+ * состояние объектам. Сами объекты про React, DOM и события ничего не знают —
+ * ровно как и раньше, эта граница себя оправдала.
  */
 export class GreySignalScene {
-  private renderer: WebGLRenderer
-  private scene = new Scene()
-  private camera: PerspectiveCamera
-  private mass: Mesh<IcosahedronGeometry, ShaderMaterial>
-  private particles: Points<BufferGeometry, ShaderMaterial>
-  private whiskers: LineSegments<BufferGeometry, LineBasicMaterial>
-  private canvas: HTMLCanvasElement
+  private readonly renderer: WebGLRenderer
+  private readonly scene = new Scene()
+  /*
+    Всё содержимое композиции лежит в одной группе, и сдвигается именно она,
+    а не камера. Камера смотрит в начало координат: если двигать её, `lookAt`
+    возвращает объект в центр кадра — при первой попытке композиция из-за
+    этого не менялась вовсе.
+  */
+  private readonly world = new Object3D()
+  private readonly camera: PerspectiveCamera
+  private readonly canvas: HTMLCanvasElement
+
+  private readonly core: GreySignalCore
+  private readonly particles: SignalParticles
+  private readonly whiskers: SignalLines
+  private readonly trail: SignalLines
+  private readonly grid: SignalLines | null
+  private readonly backdrop: HeroBackdrop
+  private readonly objects: HeroObject[]
 
   private frameId: number | null = null
   private running = false
   private disposed = false
-  private reducedMotion: boolean
 
-  private clockStart = performance.now()
-  private pointer = { x: 0, y: 0 }
-  private pointerTarget = { x: 0, y: 0 }
-  private scrollProgress = 0
+  private readonly reducedMotion: boolean
   private quality: QualityTier
+  private readonly qualityCeiling: QualityTier
   private maxDpr: number
-  private lastFrameTimes: number[] = []
-  private downgraded = false
-  /** Смещение массы вправо, чтобы не спорить с текстом первого экрана. */
-  private layoutOffsetX = 0
-  private layoutOffsetY = 0
+  private readonly costMonitor = new FrameCostMonitor()
+
+  private lastFrameAt = performance.now()
+  private startedAt = performance.now()
+
+  /** Цели интерактивных величин; в кадре к ним подтягиваются текущие. */
+  private readonly target = { pointerX: 0, pointerY: 0, scroll: 0, cases: 0, contact: 0 }
+  private pointerMovedAt = -Infinity
+  private lastGridPulseAt = -Infinity
+  private compact = false
+  /** Опорное положение камеры для текущей раскладки; от него идёт параллакс. */
+  private readonly baseCamera = new Vector3(0, 0.1, 6.2)
+
+  private readonly frame: HeroFrame = {
+    time: 0,
+    delta: 0,
+    reveal: 0,
+    pointer: { x: 0, y: 0 },
+    pointerWorld: new Vector3(0, 0, 1),
+    interaction: 0,
+    scroll: 0,
+    cases: 0,
+    contact: 0,
+    gridPulse: 0,
+    signalPhase: -1,
+    reducedMotion: false,
+    compact: false,
+  }
+
+  /** Вызывается при потере контекста WebGL — обёртка прячет canvas. */
+  onContextLostCallback: (() => void) | null = null
 
   constructor({ canvas, reducedMotion }: SceneOptions) {
     this.canvas = canvas
     this.reducedMotion = reducedMotion
+    this.frame.reducedMotion = reducedMotion
     this.quality = detectQuality()
-    this.maxDpr = QUALITY[this.quality].maxDpr
+    this.qualityCeiling = this.quality
+
+    const preset = QUALITY[this.quality]
+    this.maxDpr = preset.maxDpr
 
     this.renderer = new WebGLRenderer({
       canvas,
-      antialias: this.quality !== 'low',
+      antialias: preset.antialias,
       alpha: true,
       powerPreference: 'high-performance',
       failIfMajorPerformanceCaveat: false,
     })
     this.renderer.setClearColor(0x000000, 0)
 
-    this.camera = new PerspectiveCamera(38, 1, 0.1, 60)
-    this.camera.position.set(0, 0.15, 6.2)
+    this.camera = new PerspectiveCamera(36, 1, 0.1, 60)
+    this.camera.position.set(0, 0.1, 6.2)
 
-    const { subdivision, particles } = QUALITY[this.quality]
+    this.scene.add(this.world)
 
-    this.mass = new Mesh(
-      new IcosahedronGeometry(1.55, subdivision),
-      new ShaderMaterial({
-        vertexShader: massVertexShader,
-        fragmentShader: massFragmentShader,
-        uniforms: {
-          uTime: { value: 0 },
-          uAmplitude: { value: 0.16 },
-          uSquash: { value: 1 },
-          uSignalPhase: { value: 0 },
-          uSignalStrength: { value: 1 },
-          uColorDeep: { value: COLOR_DEEP },
-          uColorLift: { value: COLOR_LIFT },
-          uSignalColor: { value: COLOR_SIGNAL },
-          uCameraPosition: { value: new Vector3() },
-        },
-      }),
-    )
-    this.scene.add(this.mass)
+    // Фон вне группы мира: он привязан к кадру камеры, а не к объекту.
+    this.backdrop = new HeroBackdrop(this.scene, { glow: COLOR_GLOW, accent: COLOR_ACCENT })
+    this.core = new GreySignalCore(this.world, {
+      subdivision: preset.subdivision,
+      contours: preset.contours,
+      colorDeep: COLOR_DEEP,
+      colorLift: COLOR_LIFT,
+      accent: COLOR_ACCENT,
+    })
+    this.particles = new SignalParticles(this.world, {
+      count: preset.particles,
+      color: COLOR_PARTICLE,
+      accent: COLOR_ACCENT,
+    })
+    this.whiskers = new SignalLines(this.world, buildWhiskers(preset.whiskersPerSide), {
+      color: COLOR_LIFT,
+      accent: COLOR_ACCENT,
+      opacity: 0.24,
+      bendScale: 0.34,
+      flowScale: 0.9,
+      pulseSpeed: 0.11,
+      pulseStrength: 0.85,
+    })
+    this.trail = new SignalLines(this.world, buildTrail(), {
+      color: COLOR_LIFT,
+      accent: COLOR_ACCENT,
+      opacity: 0.22,
+      bendScale: 0.16,
+      flowScale: 1.3,
+      pulseSpeed: 0.07,
+      pulseStrength: 0.6,
+    })
+    this.grid = preset.grid
+      ? new SignalLines(this.world, buildGrid(), {
+          color: COLOR_LIFT,
+          accent: COLOR_ACCENT,
+          opacity: 0.42,
+          bendScale: 0.06,
+          flowScale: 0.4,
+          pulseSpeed: 0.25,
+          pulseStrength: 0.5,
+        }).asPulseDriven()
+      : null
 
-    this.particles = new Points(buildParticleGeometry(particles), new ShaderMaterial({
-      vertexShader: particlesVertexShader,
-      fragmentShader: particlesFragmentShader,
-      transparent: true,
-      depthWrite: false,
-      blending: AdditiveBlending,
-      uniforms: {
-        uTime: { value: 0 },
-        uSize: { value: 9 },
-        uPixelRatio: { value: 1 },
-        uSignalPhase: { value: 0 },
-        uColor: { value: COLOR_PARTICLE },
-        uSignalColor: { value: COLOR_SIGNAL },
-      },
-    }))
-    this.scene.add(this.particles)
-
-    this.whiskers = new LineSegments(
-      buildWhiskerGeometry(),
-      new LineBasicMaterial({ color: COLOR_LIFT, transparent: true, opacity: 0.28 }),
-    )
-    this.scene.add(this.whiskers)
+    this.objects = [this.backdrop, this.core, this.particles, this.whiskers, this.trail]
+    if (this.grid) this.objects.push(this.grid)
 
     canvas.addEventListener('webglcontextlost', this.onContextLost)
     canvas.addEventListener('webglcontextrestored', this.onContextRestored)
@@ -148,32 +173,78 @@ export class GreySignalScene {
 
   resize(width: number, height: number) {
     if (this.disposed || width === 0 || height === 0) return
+
     const dpr = Math.min(window.devicePixelRatio || 1, this.maxDpr)
     this.renderer.setPixelRatio(dpr)
     this.renderer.setSize(width, height, false)
+    this.particles.setPixelRatio(dpr)
+
+    this.compact = width < 768
+    this.frame.compact = this.compact
+
     this.camera.aspect = width / height
-    // На узких экранах объект отодвигается, иначе он вылезает за края.
-    this.camera.position.z = width < 640 ? 8.6 : width < 1024 ? 7.4 : 6.2
-    // Текст первого экрана прижат влево-вниз, поэтому объект уходит вправо-вверх.
-    this.layoutOffsetX = width < 768 ? 0 : width < 1280 ? 0.75 : 1.15
-    this.layoutOffsetY = width < 768 ? 1.15 : 0.35
+    /*
+      Композиция, а не масштабирование десктопной сцены: на узком экране объект
+      мельче и поднят над текстом, на широком — смещён вправо, где заголовку
+      он не мешает. Смещается камера, а не объект: так световое пятно фона и
+      перспектива остаются согласованными.
+    */
+    if (this.compact) {
+      /*
+        Телефон: объект поднят над текстом и заметно уменьшен. Масштаб считать
+        от десктопного нельзя — кадр узкий, и объект, занимающий там треть
+        высоты, перекрывал всю ширину экрана.
+      */
+      this.baseCamera.set(0, 0, 8.6)
+      this.world.position.set(0, 1.75, 0)
+      this.world.scale.setScalar(0.58)
+    } else if (width < 1280) {
+      this.baseCamera.set(0, 0, 6.9)
+      this.world.position.set(1.15, 0.75, 0)
+      this.world.scale.setScalar(0.9)
+    } else {
+      this.baseCamera.set(0, 0, 6.5)
+      this.world.position.set(1.85, 0.6, 0)
+      this.world.scale.setScalar(1)
+    }
+    this.camera.position.copy(this.baseCamera)
+
     this.camera.updateProjectionMatrix()
-    this.particles.material.uniforms.uPixelRatio.value = dpr
+    this.backdrop.fitToCamera(this.camera.fov, this.camera.aspect, this.camera.position.z)
+
+    // Световое пятно ставится под объект — из геометрии кадра, а не на глаз.
+    const halfHeight = Math.tan((this.camera.fov * Math.PI) / 360) * this.baseCamera.z
+    const halfWidth = halfHeight * this.camera.aspect
+    this.backdrop.setGlowCenter(
+      0.5 + this.world.position.x / (2 * halfWidth),
+      0.5 + this.world.position.y / (2 * halfHeight),
+    )
   }
 
   setPointer(x: number, y: number) {
-    this.pointerTarget.x = x
-    this.pointerTarget.y = y
+    if (this.compact) return
+    this.target.pointerX = x
+    this.target.pointerY = y
+    this.pointerMovedAt = performance.now()
+
+    // Импульс сетки при возобновлении движения после паузы — редкое событие.
+    if (performance.now() - this.lastGridPulseAt > 9000) this.pulseGrid()
   }
 
   setScrollProgress(progress: number) {
-    this.scrollProgress = Math.min(Math.max(progress, 0), 1)
+    this.target.scroll = Math.min(Math.max(progress, 0), 1)
+  }
+
+  /** Сетка вспыхивает и гаснет за ~1.2 с. */
+  pulseGrid() {
+    this.frame.gridPulse = 1
+    this.lastGridPulseAt = performance.now()
   }
 
   start() {
     if (this.running || this.disposed) return
     this.running = true
-    this.clockStart = performance.now() - 1
+    this.lastFrameAt = performance.now()
     this.loop()
   }
 
@@ -185,10 +256,17 @@ export class GreySignalScene {
     }
   }
 
-  /** Один кадр — используется при prefers-reduced-motion и для постера. */
+  /**
+   * Один кадр собранной композиции — для `prefers-reduced-motion`.
+   * Вступление не проигрывается: пользователь просил не двигать интерфейс.
+   */
   renderStatic() {
     if (this.disposed) return
-    this.update(2.4)
+    this.frame.time = 6
+    this.frame.reveal = 1
+    this.frame.delta = 0
+    this.frame.signalPhase = -0.2
+    this.updateObjects()
     this.renderer.render(this.scene, this.camera)
   }
 
@@ -197,16 +275,9 @@ export class GreySignalScene {
     this.stop()
     this.canvas.removeEventListener('webglcontextlost', this.onContextLost)
     this.canvas.removeEventListener('webglcontextrestored', this.onContextRestored)
-    this.mass.geometry.dispose()
-    this.mass.material.dispose()
-    this.particles.geometry.dispose()
-    this.particles.material.dispose()
-    this.whiskers.geometry.dispose()
-    this.whiskers.material.dispose()
+    this.objects.forEach((object) => object.dispose())
     this.renderer.dispose()
   }
-
-  onContextLostCallback: (() => void) | null = null
 
   private onContextLost = (event: Event) => {
     event.preventDefault()
@@ -220,140 +291,113 @@ export class GreySignalScene {
 
   private loop = () => {
     if (!this.running || this.disposed) return
-    const frameStart = performance.now()
-    const elapsed = (frameStart - this.clockStart) / 1000
 
-    this.update(elapsed)
+    const now = performance.now()
+    // Ограничение сверху: после скрытой вкладки или лага один кадр не должен
+    // прокручивать анимацию на секунды вперёд.
+    const delta = Math.min((now - this.lastFrameAt) / 1000, 0.05)
+    this.lastFrameAt = now
+
+    this.advance(delta, now)
+    this.updateObjects()
     this.renderer.render(this.scene, this.camera)
-    this.trackPerformance(performance.now() - frameStart)
+    this.applyCostVerdict(performance.now() - now)
 
     this.frameId = requestAnimationFrame(this.loop)
   }
 
-  private update(elapsed: number) {
-    const { uniforms: massUniforms } = this.mass.material
-    const { uniforms: particleUniforms } = this.particles.material
+  /** Продвижение состояния кадра: все величины демпфируются, а не переключаются. */
+  private advance(delta: number, now: number) {
+    const frame = this.frame
+    frame.delta = delta
+    frame.time += delta
 
-    // Демпфирование: объект догоняет курсор, а не дёргается за ним.
-    this.pointer.x += (this.pointerTarget.x - this.pointer.x) * 0.045
-    this.pointer.y += (this.pointerTarget.y - this.pointer.y) * 0.045
+    const introProgress = Math.min((now - this.startedAt) / 1000 / INTRO_SECONDS, 1)
+    // Плавное начало и конец: easeInOutCubic.
+    const eased =
+      introProgress < 0.5 ? 4 * introProgress ** 3 : 1 - Math.pow(-2 * introProgress + 2, 3) / 2
+    frame.reveal = this.reducedMotion ? 1 : eased
 
-    const scroll = this.scrollProgress
-    const idle = this.reducedMotion ? 0 : elapsed
+    // Один импульс в момент завершения сборки.
+    if (introProgress >= 1 && this.lastGridPulseAt === -Infinity) this.pulseGrid()
 
-    massUniforms.uTime.value = idle
-    // Фаза держится в пределах силуэта, иначе сигнал большую часть времени не виден.
-    massUniforms.uSignalPhase.value = this.reducedMotion ? -0.15 : ((idle * 0.26) % 1.7) - 0.85
-    massUniforms.uAmplitude.value = 0.16 + this.pointer.y * 0.025
-    massUniforms.uSignalStrength.value = 1 - scroll * 0.7
-    massUniforms.uCameraPosition.value.copy(this.camera.position)
+    const cta = getHeroCtaTarget()
+    this.target.cases = cta === 'cases' ? 1 : 0
+    this.target.contact = cta === 'contact' ? 1 : 0
 
-    particleUniforms.uTime.value = idle
-    particleUniforms.uSignalPhase.value = massUniforms.uSignalPhase.value
+    frame.pointer.x = damp(frame.pointer.x, this.target.pointerX, 3.2, delta)
+    frame.pointer.y = damp(frame.pointer.y, this.target.pointerY, 3.2, delta)
+    frame.scroll = damp(frame.scroll, this.target.scroll, 8, delta)
+    frame.cases = damp(frame.cases, this.target.cases, 5, delta)
+    frame.contact = damp(frame.contact, this.target.contact, 5, delta)
 
-    const rotationY = this.pointer.x * 0.32 + (this.reducedMotion ? 0.3 : idle * 0.045)
-    const rotationX = this.pointer.y * 0.2
+    // Свежесть движения указателя: 1 сразу после движения, ноль через ~0.6 с.
+    const sincePointer = (now - this.pointerMovedAt) / 1000
+    const interactionTarget = this.reducedMotion ? 0 : Math.max(0, 1 - sincePointer / 0.6)
+    frame.interaction = damp(frame.interaction, interactionTarget, 6, delta)
 
-    this.mass.rotation.set(rotationX, rotationY, 0)
-    this.particles.rotation.set(rotationX * 0.6, rotationY * 0.7, 0)
-    this.whiskers.rotation.set(rotationX, rotationY, 0)
+    frame.gridPulse = Math.max(0, frame.gridPulse - delta / 1.2)
 
-    // Scroll-driven: объект уходит вглубь и растворяется к следующей секции.
-    const depth = scroll * 3.4
-    this.mass.position.set(
-      this.layoutOffsetX + this.pointer.x * 0.22,
-      this.layoutOffsetY - scroll * 0.9 + this.pointer.y * 0.12,
-      -depth,
+    /*
+      Направление на указатель в пространстве сцены. Считается через камеру,
+      поэтому локальная волна на поверхности появляется именно там, куда
+      указывает курсор, а не там, где это совпало по координатам экрана.
+    */
+    frame.pointerWorld
+      .set(frame.pointer.x, frame.pointer.y, 0.85)
+      .unproject(this.camera)
+      .normalize()
+
+    // Сигнал проходит по объекту редко: раз в ~9 секунд, плюс при наведении.
+    const period = 9
+    const phase = ((frame.time % period) / period) * 2.6 - 1.3
+    frame.signalPhase = this.reducedMotion ? -0.2 : phase
+
+    /*
+      Дрейф камеры и параллакс — от опорного положения, заданного раскладкой.
+      Амплитуда мала: это воздух вокруг объекта, а не движение камеры.
+      При прокрутке камера приближается к объекту, а не отъезжает: так переход
+      к следующей секции ощущается как проход сквозь, а не как отступление.
+    */
+    const drift = this.reducedMotion ? 0 : Math.sin(frame.time * 0.12) * 0.06
+    const parallax = this.compact || this.reducedMotion ? 0 : 0.14
+    this.camera.position.set(
+      this.baseCamera.x + frame.pointer.x * parallax + drift,
+      this.baseCamera.y + frame.pointer.y * parallax * 0.55,
+      this.baseCamera.z - frame.scroll * 1.15,
     )
-    this.particles.position.copy(this.mass.position)
-    this.whiskers.position.copy(this.mass.position)
+    this.camera.lookAt(
+      frame.pointer.x * 0.1,
+      0.05 + frame.pointer.y * 0.06 - frame.scroll * 0.55,
+      0,
+    )
 
-    const fade = 1 - scroll
-    this.mass.scale.setScalar(1 - scroll * 0.18)
-    this.particles.material.uniforms.uSize.value = 9 * Math.max(fade, 0.15)
-    this.whiskers.material.opacity = 0.28 * fade
+    this.core.setCameraPosition(this.camera.position)
+  }
+
+  private updateObjects() {
+    for (const object of this.objects) object.update(this.frame)
   }
 
   /**
-   * Если кадры стабильно дороже 22 мс, качество понижается один раз.
-   * Это дешевле, чем угадывать GPU по строке рендерера.
+   * Реакция на фактическую стоимость кадра. Понижение ступени пересобирает не
+   * геометрию, а только то, что можно поменять на лету: DPR, размер частиц и
+   * сглаживание. Пересоздавать меш ядра ради подразделения дороже, чем
+   * оставить его как есть.
    */
-  private trackPerformance(frameCost: number) {
-    if (this.downgraded || this.quality === 'low') return
-    this.lastFrameTimes.push(frameCost)
-    if (this.lastFrameTimes.length < 90) return
+  private applyCostVerdict(costMs: number) {
+    const verdict = this.costMonitor.push(costMs)
+    if (!verdict) return
 
-    const average = this.lastFrameTimes.reduce((sum, value) => sum + value, 0) / this.lastFrameTimes.length
-    this.lastFrameTimes = []
+    const next =
+      verdict === 'lower' ? lowerTier(this.quality) : raiseTier(this.quality, this.qualityCeiling)
+    if (next === this.quality) return
 
-    if (average > 22) {
-      this.downgraded = true
-      this.maxDpr = QUALITY.low.maxDpr
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.maxDpr))
-      this.particles.material.uniforms.uSize.value *= 0.8
-    }
+    this.quality = next
+    this.maxDpr = QUALITY[next].maxDpr
+    const dpr = Math.min(window.devicePixelRatio || 1, this.maxDpr)
+    this.renderer.setPixelRatio(dpr)
+    this.particles.setPixelRatio(dpr)
+    this.particles.scaleSize(next === 'low' ? 0.8 : 1)
   }
-}
-
-const detectQuality = (): QualityTier => {
-  if (typeof window === 'undefined') return 'medium'
-  const cores = navigator.hardwareConcurrency ?? 4
-  const coarse = window.matchMedia('(pointer: coarse)').matches
-  const narrow = window.innerWidth < 768
-  if (narrow || coarse || cores <= 4) return 'low'
-  if (cores <= 8) return 'medium'
-  return 'high'
-}
-
-const buildParticleGeometry = (count: number): BufferGeometry => {
-  const positions = new Float32Array(count * 3)
-  const scales = new Float32Array(count)
-  const seeds = new Float32Array(count)
-
-  for (let i = 0; i < count; i += 1) {
-    // Равномерное распределение по сферической оболочке вокруг массы.
-    const u = Math.random()
-    const v = Math.random()
-    const theta = 2 * Math.PI * u
-    const phi = Math.acos(2 * v - 1)
-    const radius = 1.85 + Math.random() * 1.5
-
-    positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta)
-    positions[i * 3 + 1] = radius * Math.cos(phi) * 0.82
-    positions[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta)
-    scales[i] = 0.35 + Math.random() * 0.9
-    seeds[i] = Math.random()
-  }
-
-  const geometry = new BufferGeometry()
-  geometry.setAttribute('position', new BufferAttribute(positions, 3))
-  geometry.setAttribute('aScale', new BufferAttribute(scales, 1))
-  geometry.setAttribute('aSeed', new BufferAttribute(seeds, 1))
-  return geometry
-}
-
-/** Тонкие линии-«усы»: две дуги, уходящие в стороны от массы. */
-const buildWhiskerGeometry = (): BufferGeometry => {
-  const points: number[] = []
-  const segments = 40
-
-  for (const direction of [-1, 1]) {
-    for (let arc = 0; arc < 2; arc += 1) {
-      const lift = 0.16 + arc * 0.34
-      let previous: [number, number, number] | null = null
-      for (let i = 0; i <= segments; i += 1) {
-        const t = i / segments
-        const x = direction * (1.5 + t * 2.5)
-        const y = lift + Math.sin(t * Math.PI) * (0.55 - arc * 0.18) - t * 0.5
-        const z = Math.cos(t * Math.PI * 0.8) * 0.5
-        const current: [number, number, number] = [x, y, z]
-        if (previous) points.push(...previous, ...current)
-        previous = current
-      }
-    }
-  }
-
-  const geometry = new BufferGeometry()
-  geometry.setAttribute('position', new Float32BufferAttribute(points, 3))
-  return geometry
 }

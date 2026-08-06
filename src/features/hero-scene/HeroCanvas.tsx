@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import type { GreySignalScene } from './GreySignalScene'
+import { subscribeHeroCta } from './heroInteractionStore'
 
 /**
  * Обёртка сцены. Отвечает за то, чего не должна знать сама сцена:
@@ -85,6 +86,13 @@ export const HeroCanvas = () => {
         window.addEventListener('pointermove', onPointerMove, { passive: true })
         cleanups.push(() => window.removeEventListener('pointermove', onPointerMove))
 
+        // Наведение на CTA даёт вспышку сигнальной сетки. Само состояние
+        // сцена читает из стора в каждом кадре — перерисовки React не нужны.
+        const unsubscribeCta = subscribeHeroCta((target) => {
+          if (target) scene?.pulseGrid()
+        })
+        cleanups.push(unsubscribeCta)
+
         let scrollTicking = false
         const onScroll = () => {
           if (scrollTicking) return
@@ -161,11 +169,11 @@ const supportsWebgl = (): boolean => {
 /**
  * Порог, ниже которого сцена не запускается вовсе — остаётся постер.
  *
- * На touch-устройствах планка выше: там нет наведения курсора (то есть теряется
- * половина смысла сцены), зато есть цена в виде разбора three.js и постоянной
- * работы GPU. Поэтому на телефонах сцена включается только на достаточно
- * мощных устройствах, а на остальных виден постер — он отрисован из этой же
- * сцены и несёт тот же образ.
+ * Раньше здесь отсекались все touch-устройства: считалось, что без курсора
+ * сцена теряет половину смысла. Это было слишком грубо — телефон видит
+ * вступление, дыхание формы, сигнал и переход при прокрутке. Теперь на
+ * мобильных сцена работает, но на уровне `low`: меньше частиц, проще шейдер,
+ * без сетки. Отсекаются только устройства, которым это заведомо дорого.
  */
 const isLowEndDevice = (): boolean => {
   const cores = navigator.hardwareConcurrency ?? 8
@@ -173,7 +181,7 @@ const isLowEndDevice = (): boolean => {
   const isTouch = window.matchMedia('(pointer: coarse)').matches
 
   if (typeof memory === 'number' && memory <= 2) return true
-  if (isTouch) return cores < 6 || (typeof memory === 'number' && memory < 4)
+  if (isTouch) return cores <= 3
   return cores <= 2
 }
 

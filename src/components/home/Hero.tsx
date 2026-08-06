@@ -1,8 +1,9 @@
 import Image from 'next/image'
 
-import { ButtonLink } from '@/components/ui/Button'
 import { HeroScene } from '@/features/hero-scene'
 import type { SiteSetting } from '@/payload-types'
+
+import { HeroCtaGroup } from './HeroCtaGroup'
 
 /**
  * Первый экран.
@@ -22,6 +23,9 @@ export const Hero = ({ settings }: { settings: SiteSetting }) => {
     <section className="gm-dark relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden bg-[var(--bg)] pb-[clamp(3rem,7vh,6rem)]">
       <div className="absolute inset-0" aria-hidden="true">
         <Image
+          // Метка для scripts/hero-poster.mjs: при съёмке постера этот слой
+          // и текст скрываются, иначе постер снимет сам себя вместе с текстом.
+          data-hero-poster=""
           src="/hero-poster.jpg"
           alt=""
           fill
@@ -33,6 +37,7 @@ export const Hero = ({ settings }: { settings: SiteSetting }) => {
         <HeroScene />
         {/* Градиент гарантирует контраст текста при любом состоянии сцены. */}
         <div
+          data-hero-overlay=""
           className="pointer-events-none absolute inset-0"
           style={{
             background:
@@ -41,7 +46,7 @@ export const Hero = ({ settings }: { settings: SiteSetting }) => {
         />
       </div>
 
-      <div className="gm-container relative">
+      <div className="gm-container relative" data-hero-copy="">
         <p className="gm-eyebrow">Digital-студия</p>
 
         <h1 className="gm-heading-hero mt-4 max-w-[14ch]">{settings.heroHeading}</h1>
@@ -56,18 +61,16 @@ export const Hero = ({ settings }: { settings: SiteSetting }) => {
           </p>
         )}
 
-        <div className="mt-9 flex flex-wrap gap-3">
-          {primary?.label && primary?.href && (
-            <ButtonLink href={primary.href} variant="signal" size="lg">
-              {primary.label}
-            </ButtonLink>
-          )}
-          {secondary?.label && secondary?.href && (
-            <ButtonLink href={secondary.href} variant="outline" size="lg">
-              {secondary.label}
-            </ButtonLink>
-          )}
-        </div>
+        <HeroCtaGroup
+          primary={
+            primary?.label && primary?.href ? { label: primary.label, href: primary.href } : null
+          }
+          secondary={
+            secondary?.label && secondary?.href
+              ? { label: secondary.label, href: secondary.href }
+              : null
+          }
+        />
       </div>
     </section>
   )
