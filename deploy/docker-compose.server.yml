@@ -64,6 +64,12 @@ services:
       context: ..
       dockerfile: Dockerfile
       target: runner
+      args:
+        # Обязательно на этапе сборки, а не только в env_file: Next подставляет
+        # значения NEXT_PUBLIC_* прямо в код при сборке, в том числе в серверных
+        # компонентах. Без этого в canonical, sitemap, robots и OG попадёт
+        # localhost из значения по умолчанию в Dockerfile.
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?задайте NEXT_PUBLIC_SITE_URL в .env}
     image: greymouse-app:latest
     container_name: greymouse-app
     restart: unless-stopped
