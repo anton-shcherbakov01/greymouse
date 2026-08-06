@@ -147,32 +147,63 @@ docker compose -f deploy/docker-compose.server.yml ps
 curl -fsS http://127.0.0.1:3002/healthz     # {"status":"ok","database":"ok"}
 ```
 
-### Шаг 5. nginx
+### Шаг 5. nginx и сертификат
+
+Три подшага, порядок важен: конечный конфиг слушает 443 и ссылается на файлы
+сертификата, поэтому до выпуска сертификата nginx с ним не запустится
+(`no "ssl_certificate" is defined for the "listen ... ssl" directive`).
+
+**5.1. Временный конфиг — только чтобы пройти проверку домена.**
 
 ```bash
-sudo cp deploy/nginx/seraya-mysh.conf /etc/nginx/sites-available/seraya-mysh
+sudo mkdir -p /var/www/certbot
+sudo cp deploy/nginx/seraya-mysh-bootstrap.conf /etc/nginx/sites-available/seraya-mysh
 sudo ln -s /etc/nginx/sites-available/seraya-mysh /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-`nginx -t` уже выдаёт предупреждения `protocol options redefined` по чужим
-конфигам — это существующее состояние, не связанное с нашим файлом. Важно,
-чтобы в конце было `test is successful`.
-
-### Шаг 6. Сертификат
+**5.2. Сертификат.**
 
 ```bash
-sudo certbot --nginx \
+sudo certbot certonly --webroot -w /var/www/certbot \
   -d xn--80apaghdkxi3f.xn--p1ai \
   -d www.xn--80apaghdkxi3f.xn--p1ai
 ```
 
-Certbot сам допишет `ssl_certificate` в оба серверных блока. Автопродление уже
-настроено таймером `certbot.timer` — отдельно ничего делать не нужно.
-
 Домен указывается в punycode: часть ACME-клиентов не принимает unicode.
+Порядок `-d` определяет имя каталога сертификата, на которое ссылается конфиг,
+— менять его нельзя.
 
-### Шаг 7. Первый администратор
+Используется `certonly --webroot`, а не `--nginx`: плагин nginx редактирует
+конфигурацию сам и отказывается работать, если хоть один из восьми чужих
+виртуальных хостов ему непонятен (`The nginx plugin is not working; there may be
+problems with your existing configuration`). Режим `--webroot` ничего не правит.
+
+Автопродление уже настроено таймером `certbot.timer`, отдельно делать ничего не
+нужно: конечный конфиг сохраняет тот же `location /.well-known/acme-challenge/`,
+поэтому продление проходит тем же способом. Проверить: `sudo certbot renew --dry-run`.
+
+**5.3. Конечный конфиг.**
+
+```bash
+sudo cp deploy/nginx/seraya-mysh.conf /etc/nginx/sites-available/seraya-mysh
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Про вывод `nginx -t`:
+
+* предупреждения `protocol options redefined` идут по чужим конфигам — это
+  существующее состояние сервера, не связанное с нашим файлом;
+* важно, чтобы в конце было `test is successful`;
+* если появится `socket() [::]:443 failed (97: Address family not supported by
+  protocol)` — на сервере отключён IPv6; удалите из файла строки
+  `listen [::]:…` и повторите.
+
+HTTP/2 включён формой `listen 443 ssl http2` — отдельная директива `http2 on`
+существует только с nginx 1.25.1, а на сервере 1.24.0. Оба файла проверены
+`nginx -t` на 1.24.0 и на 1.27.
+
+### Шаг 6. Первый администратор
 
 ```bash
 docker compose -f deploy/docker-compose.server.yml run --rm \
@@ -186,7 +217,7 @@ docker compose -f deploy/docker-compose.server.yml run --rm \
 все CLI-команды проекта (`pnpm seed`, `pnpm create-admin`, `pnpm migrate`).
 Он монтирует тот же том медиа, что и приложение, — файлы из seed не теряются.
 
-### Шаг 8. Проверка
+### Шаг 7. Проверка
 
 ```bash
 curl -fsS https://xn--80apaghdkxi3f.xn--p1ai/healthz
