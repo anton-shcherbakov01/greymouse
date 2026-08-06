@@ -17,9 +17,6 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
-# Payload
-/src/app/(payload)/admin/importMap.js
-
 # Окружение конкретного сервера
 /deploy/.env
 

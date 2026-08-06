@@ -32,6 +32,10 @@ ENV DATABASE_URI=$DATABASE_URI
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
+# importMap связывает кастомные компоненты админки с бандлом. Он лежит в
+# репозитории, но пересоздаётся здесь же: так сборка не зависит от того,
+# помнил ли разработчик обновить его после правки payload.config.
+RUN pnpm generate:importmap
 RUN pnpm run build
 
 # ── migrator ─────────────────────────────────────────────────────────────────
