@@ -60,18 +60,26 @@ sudo docker image prune -a --filter "until=720h"   # ещё ~2.2 ГБ неисп
 В панели регистратора добавьте:
 
 ```
-A    @      37.252.20.7
-A    www    37.252.20.7
+A       @      37.252.20.7
+A       www    37.252.20.7
+AAAA    @      2a03:6f00:a::2:1d30      # у сервера есть IPv6, записи желательны
+AAAA    www    2a03:6f00:a::2:1d30
 ```
 
-Проверка (домен можно писать и кириллицей, и в punycode):
+`www` нужен обязательно: сертификат выпускается сразу на два имени, и без записи
+проверка домена не пройдёт для обоих. Записи `AAAA` не обязательны, но если их
+не заводить, лучше добавить хотя бы одну из пары — Let's Encrypt при наличии
+`AAAA` ходит по IPv6, и он у сервера настроен.
+
+Проверка (спрашиваем публичный резолвер, а не кэш сервера):
 
 ```bash
-dig +short xn--80apaghdkxi3f.xn--p1ai     # должен ответить 37.252.20.7
+dig +short xn--80apaghdkxi3f.xn--p1ai     @8.8.8.8   # 37.252.20.7
+dig +short www.xn--80apaghdkxi3f.xn--p1ai @8.8.8.8   # 37.252.20.7
 ```
 
-Дальше двигайтесь только после того, как запись разошлась: без неё certbot не
-выпустит сертификат.
+**Пока обе команды не отвечают IP — дальше не идите.** Без записей certbot
+получит `NXDOMAIN`. Записи `.рф` расходятся обычно за минуты, иногда до часа.
 
 ### Шаг 2. Код на сервер
 
@@ -153,14 +161,19 @@ curl -fsS http://127.0.0.1:3002/healthz     # {"status":"ok","database":"ok"}
 сертификата, поэтому до выпуска сертификата nginx с ним не запустится
 (`no "ssl_certificate" is defined for the "listen ... ssl" directive`).
 
+Выбор конфига берёт на себя скрипт: он смотрит, есть ли сертификат, ставит
+подходящий файл и **откатывается, если `nginx -t` не прошёл**. Последнее
+существенно: неработающий файл в `sites-enabled` обрушит nginx при следующем
+перезапуске, а вместе с ним и остальные восемь сайтов сервера.
+
 **5.1. Временный конфиг — только чтобы пройти проверку домена.**
 
 ```bash
-sudo mkdir -p /var/www/certbot
-sudo cp deploy/nginx/seraya-mysh-bootstrap.conf /etc/nginx/sites-available/seraya-mysh
-sudo ln -s /etc/nginx/sites-available/seraya-mysh /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
+sudo deploy/nginx/install-vhost.sh
 ```
+
+Сертификата ещё нет, поэтому скрипт поставит `seraya-mysh-bootstrap.conf`:
+только 80-й порт и каталог для проверки домена.
 
 **5.2. Сертификат.**
 
@@ -185,15 +198,22 @@ problems with your existing configuration`). Режим `--webroot` ничего
 
 **5.3. Конечный конфиг.**
 
+Тот же скрипт: сертификат теперь на месте, значит поставится `seraya-mysh.conf`
+с 443-м портом и проксированием.
+
 ```bash
-sudo cp deploy/nginx/seraya-mysh.conf /etc/nginx/sites-available/seraya-mysh
-sudo nginx -t && sudo systemctl reload nginx
+sudo deploy/nginx/install-vhost.sh
 ```
+
+Если certbot на шаге 5.2 не отработал, скрипт это увидит и оставит временный
+конфиг — сломанного состояния не будет.
 
 Про вывод `nginx -t`:
 
-* предупреждения `protocol options redefined` идут по чужим конфигам — это
-  существующее состояние сервера, не связанное с нашим файлом;
+* предупреждения `protocol options redefined` идут по чужим конфигам (picglot,
+  proglubinu.ru, skilltest) — это существующее состояние сервера; строки про
+  `sites-enabled/seraya-mysh` в том же списке означают лишь, что HTTP/2 у нас
+  объявлен, а у соседей нет;
 * важно, чтобы в конце было `test is successful`;
 * если появится `socket() [::]:443 failed (97: Address family not supported by
   protocol)` — на сервере отключён IPv6; удалите из файла строки
