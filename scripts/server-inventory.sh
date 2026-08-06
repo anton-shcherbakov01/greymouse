@@ -255,7 +255,7 @@ fi
 
 # ── 7. Сертификаты ───────────────────────────────────────────────────────────
 section "7. TLS-СЕРТИФИКАТЫ"
-out "Домен студии: сераямышь.рф → xn--80apaghdkxi3f.xn--p1ai"
+out "Домен студии: сераямышь.рф → xn--80ajwod0cujx.xn--p1ai"
 out "Сертификат нужно выпускать на punycode-имя."
 
 if have certbot; then
@@ -325,7 +325,7 @@ ext_ip="$(curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null || curl -fsS 
 out "    $ext_ip"
 
 sub "Куда сейчас указывает домен"
-for host in xn--80apaghdkxi3f.xn--p1ai www.xn--80apaghdkxi3f.xn--p1ai; do
+for host in xn--80ajwod0cujx.xn--p1ai www.xn--80ajwod0cujx.xn--p1ai; do
   if have dig; then
     out "    $host → $(dig +short "$host" 2>/dev/null | tr '\n' ' ' || echo 'нет записи')"
   elif have host; then

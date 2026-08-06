@@ -6,6 +6,8 @@
  * unicode-форма в HTML-атрибутах обрабатывается непредсказуемо.
  */
 
+import { punycodeToUnicode } from './idn'
+
 const FALLBACK_URL = 'http://localhost:3000'
 
 const normalise = (raw: string): string => {
@@ -25,21 +27,10 @@ export const SITE_URL = normalise(process.env.NEXT_PUBLIC_SITE_URL ?? FALLBACK_U
 /** Человекочитаемый домен для показа пользователю (unicode-форма). */
 export const SITE_DOMAIN_DISPLAY = (() => {
   try {
-    const host = new URL(SITE_URL).host
-    // punycode → unicode для отображения
-    return host.startsWith('xn--') || host.includes('.xn--')
-      ? new URL(SITE_URL).hostname
-          .split('.')
-          .map((part) => {
-            if (!part.startsWith('xn--')) return part
-            try {
-              return decodeURIComponent(escape(part))
-            } catch {
-              return part
-            }
-          })
-          .join('.')
-      : host
+    const { host, hostname } = new URL(SITE_URL)
+    const unicode = punycodeToUnicode(hostname)
+    // Порт (если он есть) остаётся от host: в hostname его нет.
+    return host === hostname ? unicode : host.replace(hostname, unicode)
   } catch {
     return 'localhost'
   }

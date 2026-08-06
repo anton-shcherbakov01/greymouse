@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-DOMAIN=xn--80apaghdkxi3f.xn--p1ai
+DOMAIN=xn--80ajwod0cujx.xn--p1ai
 CERT=/etc/letsencrypt/live/$DOMAIN/fullchain.pem
 WEBROOT=/var/www/certbot
 

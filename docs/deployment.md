@@ -58,7 +58,7 @@ DNS-записи домена. В конце — сводка «что есть,
 Для IDN-домена указывайте **punycode**:
 
 ```
-сераямышь.рф → https://xn--80apaghdkxi3f.xn--p1ai
+сераямышь.рф → https://xn--80ajwod0cujx.xn--p1ai
 ```
 
 Приложение само нормализует значение через `new URL()`, поэтому unicode-запись
@@ -115,7 +115,7 @@ docker build -t greymouse:latest .
 
 ```bash
 docker run -d --name greymouse -p 3000:3000 \
-  -e NEXT_PUBLIC_SITE_URL=https://xn--80apaghdkxi3f.xn--p1ai \
+  -e NEXT_PUBLIC_SITE_URL=https://xn--80ajwod0cujx.xn--p1ai \
   -e PAYLOAD_SECRET=... \
   -e DATABASE_URI=postgres://user:pass@db-host:5432/greymouse \
   -e PREVIEW_SECRET=... \
@@ -148,7 +148,7 @@ docker run -d --name greymouse -p 3000:3000 \
    принимает и unicode-, и punycode-запись) на IP балансировщика или сервера.
    При использовании CDN — `CNAME` на его адрес.
 2. **HTTPS.** Выпустите сертификат на **punycode-имя**
-   (`xn--80apaghdkxi3f.xn--p1ai`) — часть ACME-клиентов не принимает unicode.
+   (`xn--80ajwod0cujx.xn--p1ai`) — часть ACME-клиентов не принимает unicode.
    Let's Encrypt поддерживает IDN.
 3. **Прокси.** Проксируйте на порт приложения и передавайте заголовки:
 

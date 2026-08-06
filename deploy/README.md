@@ -56,30 +56,40 @@ sudo docker image prune -a --filter "until=720h"   # ещё ~2.2 ГБ неисп
 
 ### Шаг 1. DNS
 
-Сейчас `сераямышь.рф` **не резолвится вообще** — записи нет.
-В панели регистратора добавьте:
+Домен зарегистрирован в Timeweb и делегирован на `ns1.timeweb.ru`,
+`ns2.timeweb.ru`, `ns3.timeweb.org`, `ns4.timeweb.org`. Записи заведены там же:
 
 ```
 A       @      37.252.20.7
 A       www    37.252.20.7
-AAAA    @      2a03:6f00:a::2:1d30      # у сервера есть IPv6, записи желательны
+AAAA    @      2a03:6f00:a::2:1d30      # у сервера есть IPv6
 AAAA    www    2a03:6f00:a::2:1d30
 ```
 
 `www` нужен обязательно: сертификат выпускается сразу на два имени, и без записи
-проверка домена не пройдёт для обоих. Записи `AAAA` не обязательны, но если их
-не заводить, лучше добавить хотя бы одну из пары — Let's Encrypt при наличии
-`AAAA` ходит по IPv6, и он у сервера настроен.
+проверка домена не пройдёт для обоих.
+
+> **Punycode домена — `xn--80ajwod0cujx.xn--p1ai`.** Выписывать его вручную
+> нельзя: имя из похожих букв легко ошибиться, а ошибка выглядит как «домен не
+> делегирован» — certbot отвечает `NXDOMAIN`, и непонятно, кто виноват.
+> Проверить можно так:
+>
+> ```bash
+> python3 -c "print('сераямышь.рф'.encode('idna').decode())"
+> ```
+>
+> То же значение сверяется тестом `tests/unit/idn.test.ts`.
 
 Проверка (спрашиваем публичный резолвер, а не кэш сервера):
 
 ```bash
-dig +short xn--80apaghdkxi3f.xn--p1ai     @8.8.8.8   # 37.252.20.7
-dig +short www.xn--80apaghdkxi3f.xn--p1ai @8.8.8.8   # 37.252.20.7
+dig +short NS xn--80ajwod0cujx.xn--p1ai     @8.8.8.8   # ns*.timeweb.*
+dig +short A  xn--80ajwod0cujx.xn--p1ai     @8.8.8.8   # 37.252.20.7
+dig +short A  www.xn--80ajwod0cujx.xn--p1ai @8.8.8.8   # 37.252.20.7
 ```
 
-**Пока обе команды не отвечают IP — дальше не идите.** Без записей certbot
-получит `NXDOMAIN`. Записи `.рф` расходятся обычно за минуты, иногда до часа.
+**Пока команды не отвечают — дальше не идите:** без записей certbot получит
+`NXDOMAIN`. Делегирование расходится за время от минут до нескольких часов.
 
 ### Шаг 2. Код на сервер
 
@@ -103,7 +113,7 @@ nano deploy/.env
 Заполнить обязательное:
 
 ```bash
-NEXT_PUBLIC_SITE_URL=https://xn--80apaghdkxi3f.xn--p1ai
+NEXT_PUBLIC_SITE_URL=https://xn--80ajwod0cujx.xn--p1ai
 PAYLOAD_SECRET=$(openssl rand -hex 32)
 PREVIEW_SECRET=$(openssl rand -hex 24)
 POSTGRES_PASSWORD=$(openssl rand -hex 24)
@@ -179,8 +189,8 @@ sudo deploy/nginx/install-vhost.sh
 
 ```bash
 sudo certbot certonly --webroot -w /var/www/certbot \
-  -d xn--80apaghdkxi3f.xn--p1ai \
-  -d www.xn--80apaghdkxi3f.xn--p1ai
+  -d xn--80ajwod0cujx.xn--p1ai \
+  -d www.xn--80ajwod0cujx.xn--p1ai
 ```
 
 Домен указывается в punycode: часть ACME-клиентов не принимает unicode.
@@ -240,8 +250,8 @@ docker compose -f deploy/docker-compose.server.yml run --rm \
 ### Шаг 7. Проверка
 
 ```bash
-curl -fsS https://xn--80apaghdkxi3f.xn--p1ai/healthz
-curl -fsS https://xn--80apaghdkxi3f.xn--p1ai/robots.txt   # должно быть Allow: /
+curl -fsS https://xn--80ajwod0cujx.xn--p1ai/healthz
+curl -fsS https://xn--80ajwod0cujx.xn--p1ai/robots.txt   # должно быть Allow: /
 ```
 
 Затем в браузере: главная, `/cases`, один кейс, вход в `/admin` и сохранение
