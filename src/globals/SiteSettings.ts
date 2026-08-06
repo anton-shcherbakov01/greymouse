@@ -137,6 +137,7 @@ export const SiteSettings: GlobalConfig = {
               name: 'telegram',
               type: 'text',
               label: 'Telegram',
+              defaultValue: 'https://t.me/AAntonShch',
               admin: { description: 'Полный URL, например https://t.me/username. Пусто — не показывается.' },
             },
             {

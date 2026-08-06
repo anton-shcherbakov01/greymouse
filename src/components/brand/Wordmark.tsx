@@ -1,40 +1,33 @@
+import Image from 'next/image'
+
+import logo from '../../../public/brand/logo.png'
+
 type WordmarkProps = {
   className?: string
-  /** Только знак, без названия — для компактных мест. */
+  /**
+   * Только знак, без названия — для компактных мест. Логотип неразделим
+   * (мышь и плашка с названием нарисованы вместе), поэтому здесь показывается
+   * тот же файл, просто мельче.
+   */
   markOnly?: boolean
 }
 
 /**
- * Знак студии: графитовый овал с сигнальной чертой внутри —
- * силуэт-намёк, а не буквальная мышь.
+ * Логотип студии. Растровый файл, а не SVG: исходник пришёл изображением,
+ * с градиентами и мягкими тенями — их векторизация исказила бы знак.
+ *
+ * Размеры берутся из самого файла (импорт даёт width/height), поэтому место
+ * под логотип резервируется до загрузки и вёрстка не прыгает.
  */
 export const Wordmark = ({ className, markOnly = false }: WordmarkProps) => (
-  <span className={`inline-flex items-center gap-2.5 ${className ?? ''}`}>
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 28 28"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-      className="shrink-0"
-    >
-      <circle cx="9" cy="9" r="3.6" stroke="currentColor" strokeWidth="1.4" opacity="0.55" />
-      <circle cx="19" cy="9" r="3.6" stroke="currentColor" strokeWidth="1.4" opacity="0.55" />
-      <path
-        d="M4.5 18.5c0-4.2 4.25-6.5 9.5-6.5s9.5 2.3 9.5 6.5c0 3.6-4.25 5.5-9.5 5.5s-9.5-1.9-9.5-5.5Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-      />
-      <path d="M9.5 18.5h9" stroke="var(--gm-signal)" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-    {!markOnly && (
-      <span
-        className="font-display text-[0.95rem] font-medium tracking-[-0.01em] whitespace-nowrap"
-        style={{ fontFamily: 'var(--font-display)' }}
-      >
-        Серая Мышь
-      </span>
-    )}
+  <span className={`inline-flex items-center ${className ?? ''}`}>
+    <Image
+      src={logo}
+      alt="Серая Мышь — digital-студия"
+      priority
+      sizes="220px"
+      className={`h-auto w-auto ${markOnly ? 'max-h-7' : 'max-h-9'}`}
+      style={{ width: 'auto' }}
+    />
   </span>
 )

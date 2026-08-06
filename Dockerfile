@@ -75,6 +75,11 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Каталог загрузок создаётся заранее и с нужным владельцем: при первом запуске
+# Docker переносит права из образа на новый том. Без этого том принадлежит root,
+# приложение работает под nextjs — и загрузка файлов в админке падает с EACCES.
+RUN mkdir -p /app/media && chown nextjs:nodejs /app/media
+
 USER nextjs
 EXPOSE 3000
 

@@ -44,7 +44,10 @@ export const generateMetadata = async (): Promise<Metadata> => {
       follow: !settings.seo?.noindex,
     },
     icons: {
-      icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+      icon: [
+        { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+        { url: '/icon.png', sizes: '512x512', type: 'image/png' },
+      ],
       apple: [{ url: '/apple-icon.png', sizes: '180x180' }],
     },
   }

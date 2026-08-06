@@ -8,6 +8,7 @@ import {
   type ContactActionState,
   type ContactFieldName,
 } from '@/lib/contact-schema'
+import { parseNotifyRecipients } from '@/lib/notify-recipients'
 import { getPayloadClient } from '@/lib/payload'
 import { checkRateLimit } from '@/lib/rate-limit'
 
@@ -108,15 +109,15 @@ export const submitEnquiry = async (
   }
 }
 
-/** Письмо отправляется только если настроены и SMTP, и адрес получателя. */
+/** Письмо отправляется только если настроены и SMTP, и хотя бы один получатель. */
 const notifyByEmail = async (name: string, contact: string, message: string) => {
-  const to = process.env.CONTACT_NOTIFY_EMAIL
-  if (!to || !process.env.SMTP_HOST) return
+  const recipients = parseNotifyRecipients(process.env.CONTACT_NOTIFY_EMAIL)
+  if (recipients.length === 0 || !process.env.SMTP_HOST) return
 
   try {
     const payload = await getPayloadClient()
     await payload.sendEmail({
-      to,
+      to: recipients.join(', '),
       subject: `Заявка с сайта: ${name}`,
       text: `Имя: ${name}\nКонтакт: ${contact}\n\n${message}`,
     })

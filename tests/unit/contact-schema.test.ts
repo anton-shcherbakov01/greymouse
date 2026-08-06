@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { contactSchema } from '@/lib/contact-schema'
+import { parseNotifyRecipients } from '@/lib/notify-recipients'
 
 const valid = {
   name: 'Анна',
@@ -43,5 +44,20 @@ describe('contactSchema', () => {
   it('обрезает пробелы вокруг значений', () => {
     const result = contactSchema.safeParse({ ...valid, name: '  Анна  ' })
     expect(result.success && result.data.name).toBe('Анна')
+  })
+})
+
+describe('parseNotifyRecipients', () => {
+  it('разбирает несколько адресов через запятую и точку с запятой', () => {
+    expect(parseNotifyRecipients('a@b.ru, c@d.ru; e@f.ru')).toEqual(['a@b.ru', 'c@d.ru', 'e@f.ru'])
+  })
+
+  it('убирает дубли без учёта регистра и мусор без @', () => {
+    expect(parseNotifyRecipients('A@B.ru, a@b.ru, ,нет-почты')).toEqual(['A@B.ru'])
+  })
+
+  it('возвращает пустой список, когда переменная не задана', () => {
+    expect(parseNotifyRecipients(undefined)).toEqual([])
+    expect(parseNotifyRecipients('')).toEqual([])
   })
 })

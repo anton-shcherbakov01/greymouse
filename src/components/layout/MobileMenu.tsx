@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useId, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 type NavItem = { id: string; label: string; href: string }
 
@@ -74,6 +75,57 @@ export const MobileMenu = ({ items, cta }: MobileMenuProps) => {
     }
   }, [open])
 
+  /*
+    Панель выносится порталом в body. Иначе она остаётся внутри шапки, а у той
+    есть backdrop-filter — он делает элемент содержащим блоком для потомков с
+    position: fixed. Панель тогда позиционируется не по окну, а по шапке
+    высотой в один заголовок: фон схлопывается в полоску, а пункты меню
+    вываливаются поверх страницы без подложки.
+  */
+  const panel = (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          id={panelId}
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Меню"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+          className="fixed inset-x-0 top-[var(--header-height)] bottom-0 overflow-y-auto overscroll-contain border-t border-[var(--border)] bg-[var(--bg)] md:hidden"
+          style={{ zIndex: 'var(--z-menu)' }}
+        >
+          <nav aria-label="Мобильная навигация" className="gm-container py-8">
+            <ul className="flex flex-col gap-1">
+              {items.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={item.href}
+                    className="block border-b border-[var(--border)] py-4 text-[1.75rem] tracking-[var(--tracking-tight)]"
+                    style={{ fontFamily: 'var(--font-display)' }}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            {cta && (
+              <Link
+                href={cta.href}
+                className="mt-8 inline-flex h-12 items-center justify-center rounded-[var(--radius-md)] bg-[var(--accent)] px-6 font-medium text-[var(--accent-fg)]"
+              >
+                {cta.label}
+              </Link>
+            )}
+          </nav>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+
   return (
     <>
       <button
@@ -97,47 +149,7 @@ export const MobileMenu = ({ items, cta }: MobileMenuProps) => {
         </span>
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            id={panelId}
-            ref={panelRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Меню"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-x-0 top-[var(--header-height)] bottom-0 border-t border-[var(--border)] bg-[var(--bg)] md:hidden"
-            style={{ zIndex: 'var(--z-menu)' }}
-          >
-            <nav aria-label="Мобильная навигация" className="gm-container py-8">
-              <ul className="flex flex-col gap-1">
-                {items.map((item) => (
-                  <li key={item.id}>
-                    <Link
-                      href={item.href}
-                      className="block border-b border-[var(--border)] py-4 text-[1.75rem] tracking-[var(--tracking-tight)]"
-                      style={{ fontFamily: 'var(--font-display)' }}
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              {cta && (
-                <Link
-                  href={cta.href}
-                  className="mt-8 inline-flex h-12 items-center justify-center rounded-[var(--radius-md)] bg-[var(--accent)] px-6 font-medium text-[var(--accent-fg)]"
-                >
-                  {cta.label}
-                </Link>
-              )}
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {typeof document === 'undefined' ? null : createPortal(panel, document.body)}
     </>
   )
 }

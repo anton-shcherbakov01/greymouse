@@ -140,6 +140,10 @@ docker compose -f deploy/docker-compose.server.yml run --rm migrate
 # 3. Демонстрационный контент (по желанию, потом его нужно будет удалить)
 docker compose -f deploy/docker-compose.server.yml run --rm migrate pnpm seed
 
+# 3.1. Права на том медиа: seed выполняется от root, приложение — от uid 1001.
+#      Без этого загрузка файлов в админке падает с EACCES.
+docker run --rm -v greymouse-media:/m alpine chown -R 1001:1001 /m
+
 # 4. Приложение: собирается и запускается
 docker compose -f deploy/docker-compose.server.yml up -d --build app
 ```
