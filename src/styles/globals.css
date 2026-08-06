@@ -1,0 +1,344 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@theme inline {
+  --color-ink: var(--gm-ink);
+  --color-graphite: var(--gm-graphite);
+  --color-slate: var(--gm-slate);
+  --color-steel: var(--gm-steel);
+  --color-silver: var(--gm-silver);
+  --color-mist: var(--gm-mist);
+  --color-paper: var(--gm-paper);
+  --color-signal: var(--gm-signal);
+  --color-signal-dim: var(--gm-signal-dim);
+
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-line: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* Нативный скролл: движки smooth-scroll ломают клавиатурную навигацию.
+       scroll-padding учитывает липкую шапку при переходе по якорю. */
+    scroll-padding-top: calc(var(--header-height) + 1rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-body);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Видимый фокус обязателен и не должен зависеть от цвета секции. */
+  :focus-visible {
+    outline: 2px solid var(--gm-signal);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--gm-signal);
+    color: var(--gm-ink);
+  }
+}
+
+@layer components {
+  .gm-container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .gm-section {
+    background-color: var(--bg);
+    color: var(--fg);
+    padding-block: var(--space-section);
+  }
+
+  /* Надзаголовок капителью — паттерн, встреченный у пяти из семи референсов. */
+  .gm-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    letter-spacing: var(--tracking-meta);
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .gm-heading-hero {
+    font-size: var(--text-hero);
+    line-height: var(--leading-hero);
+    letter-spacing: var(--tracking-hero);
+    font-weight: 500;
+  }
+
+  .gm-heading-1 {
+    font-size: var(--text-4xl);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .gm-heading-2 {
+    font-size: var(--text-3xl);
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+  }
+
+  .gm-heading-3 {
+    font-size: var(--text-xl);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .gm-lede {
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    color: var(--fg-muted);
+    max-width: var(--container-text);
+  }
+
+  .gm-rule {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  .gm-prose {
+    max-width: var(--container-text);
+    color: var(--fg-muted);
+    font-size: var(--text-base);
+    line-height: var(--leading-body);
+  }
+
+  .gm-prose > * + * {
+    margin-top: 1.1em;
+  }
+
+  .gm-prose h2,
+  .gm-prose h3 {
+    color: var(--fg);
+    margin-top: 2em;
+  }
+
+  .gm-prose h2 {
+    font-size: var(--text-2xl);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .gm-prose h3 {
+    font-size: var(--text-xl);
+  }
+
+  .gm-prose ul,
+  .gm-prose ol {
+    padding-left: 1.25em;
+  }
+
+  .gm-prose li + li {
+    margin-top: 0.4em;
+  }
+
+  .gm-prose a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--accent);
+  }
+
+  .gm-prose strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+}
+
+@layer utilities {
+  /*
+    Reveal-система. Элемент получает data-reveal, наблюдатель ставит
+    data-revealed="true" один раз. Никакой пофреймовой JS-анимации.
+  */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(var(--reveal-distance));
+    transition:
+      opacity var(--dur-reveal) var(--ease-out),
+      transform var(--dur-reveal) var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+
+  [data-reveal][data-revealed='true'] {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+
+  /* Брендовый приём: тонкая сигнальная линия проходит по блоку один раз. */
+  .gm-signal-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gm-signal-sweep::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--gm-signal) 35%,
+      var(--gm-signal) 65%,
+      transparent
+    );
+    transform: scaleX(0);
+    transform-origin: left center;
+    opacity: 0;
+  }
+
+  .gm-signal-sweep[data-revealed='true']::after {
+    animation: gm-sweep var(--dur-slow) var(--ease-out) forwards;
+  }
+
+  @keyframes gm-sweep {
+    0% {
+      transform: scaleX(0);
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+    100% {
+      transform: scaleX(1);
+      opacity: 0;
+    }
+  }
+
+  /*
+    Появление карточек при смене фильтра. Анимируются только opacity и
+    transform, элементы уже занимают своё место — сдвига вёрстки нет.
+  */
+  .gm-case-grid > li {
+    animation: gm-card-in var(--dur-base) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+
+  @keyframes gm-card-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .gm-skip-link {
+    position: absolute;
+    left: var(--gutter);
+    top: 0;
+    z-index: var(--z-skip);
+    transform: translateY(-150%);
+    background: var(--gm-signal);
+    color: var(--gm-ink);
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    transition: transform var(--dur-quick) var(--ease-out);
+  }
+
+  .gm-skip-link:focus-visible {
+    transform: translateY(0.5rem);
+  }
+}
+
+/*
+  Полная поддержка prefers-reduced-motion: контент виден сразу,
+  декоративные анимации выключены.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .gm-signal-sweep::after {
+    display: none;
+  }
+
+  .gm-case-grid > li {
+    animation: none;
+  }
+}

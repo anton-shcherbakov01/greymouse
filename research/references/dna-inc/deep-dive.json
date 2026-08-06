@@ -1,0 +1,252 @@
+{
+  "introState": {
+    "overlays": [
+      {
+        "tag": "DIV",
+        "cls": "lenis lenis-stopped",
+        "pos": "fixed",
+        "z": "auto",
+        "bg": "rgba(0, 0, 0, 0)",
+        "opacity": "1",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          1440,
+          900
+        ]
+      },
+      {
+        "tag": "SECTION",
+        "cls": "_wrapper_om5p2_1",
+        "pos": "static",
+        "z": "auto",
+        "bg": "rgba(0, 0, 0, 0)",
+        "opacity": "1",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          1440,
+          1800
+        ]
+      },
+      {
+        "tag": "SECTION",
+        "cls": "_container_viqpv_1 _wrapper_1djpw_1",
+        "pos": "relative",
+        "z": "1",
+        "bg": "rgb(255, 255, 255)",
+        "opacity": "1",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          1440,
+          900
+        ]
+      },
+      {
+        "tag": "SCRIPT",
+        "cls": "",
+        "pos": "static",
+        "z": "auto",
+        "bg": "rgba(0, 0, 0, 0)",
+        "opacity": "1",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          0,
+          0
+        ]
+      },
+      {
+        "tag": "SECTION",
+        "cls": "_container_viqpv_1 _section_1k236_45",
+        "pos": "relative",
+        "z": "auto",
+        "bg": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          1440,
+          900
+        ]
+      },
+      {
+        "tag": "SECTION",
+        "cls": "_wrapper_1djpw_1",
+        "pos": "relative",
+        "z": "auto",
+        "bg": "rgb(255, 255, 255)",
+        "opacity": "1",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          1440,
+          3543
+        ]
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "pos": "static",
+        "z": "auto",
+        "bg": "rgba(0, 0, 0, 0)",
+        "opacity": "1",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          0,
+          0
+        ]
+      },
+      {
+        "tag": "DIV",
+        "cls": "scrollbar astro-mfnc4ja2 is-hidden",
+        "pos": "fixed",
+        "z": "9999",
+        "bg": "rgba(0, 0, 0, 0)",
+        "opacity": "0",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          14,
+          900
+        ]
+      },
+      {
+        "tag": "SCRIPT",
+        "cls": "",
+        "pos": "static",
+        "z": "auto",
+        "bg": "rgba(0, 0, 0, 0)",
+        "opacity": "1",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          0,
+          0
+        ]
+      },
+      {
+        "tag": "DIV",
+        "cls": "_container_smszw_1 intro-container",
+        "pos": "fixed",
+        "z": "20",
+        "bg": "rgb(0, 0, 0)",
+        "opacity": "1",
+        "visibility": "visible",
+        "transform": "none",
+        "rect": [
+          1440,
+          900
+        ]
+      }
+    ],
+    "canvasInfo": {
+      "rect": [
+        1440,
+        900
+      ],
+      "attrW": 1440,
+      "attrH": 900,
+      "display": "inline",
+      "opacity": "1",
+      "position": "static",
+      "parentTag": "DIV",
+      "parentCls": "size astro-nxek7mu6",
+      "parentRect": [
+        1440,
+        900
+      ],
+      "parentPosition": "fixed",
+      "parentHeight": "900px"
+    },
+    "firstScreenText": [
+      {
+        "tag": "A",
+        "text": "",
+        "opacity": "1",
+        "color": "rgb(255, 255, 255)",
+        "size": "16px",
+        "clip": "none",
+        "transform": "none"
+      },
+      {
+        "tag": "A",
+        "text": "Home",
+        "opacity": "1",
+        "color": "rgb(255, 255, 255)",
+        "size": "14px",
+        "clip": "none",
+        "transform": "none"
+      },
+      {
+        "tag": "A",
+        "text": "Insights",
+        "opacity": "0.4",
+        "color": "rgb(255, 255, 255)",
+        "size": "14px",
+        "clip": "none",
+        "transform": "none"
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "opacity": "0.4",
+        "color": "rgb(255, 255, 255)",
+        "size": "14px",
+        "clip": "none",
+        "transform": "none"
+      },
+      {
+        "tag": "A",
+        "text": "Contact",
+        "opacity": "0.4",
+        "color": "rgb(255, 255, 255)",
+        "size": "14px",
+        "clip": "none",
+        "transform": "none"
+      },
+      {
+        "tag": "A",
+        "text": "Careers",
+        "opacity": "1",
+        "color": "rgb(255, 255, 255)",
+        "size": "13px",
+        "clip": "none",
+        "transform": "none"
+      },
+      {
+        "tag": "H1",
+        "text": "DNA.inc - Curious minds for adventurous missions",
+        "opacity": "1",
+        "color": "rgb(23, 24, 27)",
+        "size": "32px",
+        "clip": "none",
+        "transform": "none"
+      }
+    ],
+    "bodyClass": "",
+    "htmlClass": "swup-enabled"
+  },
+  "afterScroll": {
+    "scrollY": 0,
+    "canvasRect": [
+      1440,
+      900,
+      0
+    ],
+    "canvasStyle": "none"
+  },
+  "mobileCanvas": {
+    "rect": [
+      390,
+      844
+    ],
+    "attr": [
+      780,
+      1688
+    ]
+  },
+  "noWebglText": "Home\nInsights\nAbout\nContact\nCareers\nDNA.inc - Curious minds for adventurous missions\nThe partner behind high‑performing design and engineering teams.\n\nElevating craft. Shipping at scale. Building expertise that lasts.\n\nDelivering experiences that shift expectations and reshape how people connect.\nGe"
+}

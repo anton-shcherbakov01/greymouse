@@ -1,0 +1,693 @@
+[
+  {
+    "viewport": "1440x900",
+    "page": "home",
+    "url": "/",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Серая Мышь",
+      "imagesWithoutAlt": 0,
+      "title": "Серая Мышь — digital-студия",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1440x900",
+    "page": "cases",
+    "url": "/cases",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы сделали",
+      "imagesWithoutAlt": 0,
+      "title": "Кейсы — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1440x900",
+    "page": "case-detail",
+    "url": "/cases/demo-logistics-platform",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "[demo] Платформа для логистической компании",
+      "imagesWithoutAlt": 0,
+      "title": "[demo] Платформа для логистической компании — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1440x900",
+    "page": "services",
+    "url": "/services",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы делаем",
+      "imagesWithoutAlt": 0,
+      "title": "Услуги — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1440x900",
+    "page": "about",
+    "url": "/about",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Тихо, внимательно и до результата",
+      "imagesWithoutAlt": 0,
+      "title": "О студии — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1440x900",
+    "page": "contact",
+    "url": "/contact",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Расскажите про задачу",
+      "imagesWithoutAlt": 0,
+      "title": "Контакты — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1440x900",
+    "page": "not-found",
+    "url": "/no-such-page-xyz",
+    "status": 404,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "404",
+      "imagesWithoutAlt": 0,
+      "title": "404: This page could not be found.",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1440x900",
+    "page": "admin-login",
+    "url": "/admin/login",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 0,
+      "h1": null,
+      "imagesWithoutAlt": 0,
+      "title": "Войти — Серая Мышь",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1024x768",
+    "page": "home",
+    "url": "/",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Серая Мышь",
+      "imagesWithoutAlt": 0,
+      "title": "Серая Мышь — digital-студия",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1024x768",
+    "page": "cases",
+    "url": "/cases",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы сделали",
+      "imagesWithoutAlt": 0,
+      "title": "Кейсы — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1024x768",
+    "page": "case-detail",
+    "url": "/cases/demo-logistics-platform",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "[demo] Платформа для логистической компании",
+      "imagesWithoutAlt": 0,
+      "title": "[demo] Платформа для логистической компании — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1024x768",
+    "page": "services",
+    "url": "/services",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы делаем",
+      "imagesWithoutAlt": 0,
+      "title": "Услуги — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1024x768",
+    "page": "about",
+    "url": "/about",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Тихо, внимательно и до результата",
+      "imagesWithoutAlt": 0,
+      "title": "О студии — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1024x768",
+    "page": "contact",
+    "url": "/contact",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Расскажите про задачу",
+      "imagesWithoutAlt": 0,
+      "title": "Контакты — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1024x768",
+    "page": "not-found",
+    "url": "/no-such-page-xyz",
+    "status": 404,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "404",
+      "imagesWithoutAlt": 0,
+      "title": "404: This page could not be found.",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "pageErrors": []
+  },
+  {
+    "viewport": "1024x768",
+    "page": "admin-login",
+    "url": "/admin/login",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 0,
+      "h1": null,
+      "imagesWithoutAlt": 0,
+      "title": "Войти — Серая Мышь",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "768x1024",
+    "page": "home",
+    "url": "/",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Серая Мышь",
+      "imagesWithoutAlt": 0,
+      "title": "Серая Мышь — digital-студия",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "768x1024",
+    "page": "cases",
+    "url": "/cases",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы сделали",
+      "imagesWithoutAlt": 0,
+      "title": "Кейсы — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "768x1024",
+    "page": "case-detail",
+    "url": "/cases/demo-logistics-platform",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "[demo] Платформа для логистической компании",
+      "imagesWithoutAlt": 0,
+      "title": "[demo] Платформа для логистической компании — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "768x1024",
+    "page": "services",
+    "url": "/services",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы делаем",
+      "imagesWithoutAlt": 0,
+      "title": "Услуги — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "768x1024",
+    "page": "about",
+    "url": "/about",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Тихо, внимательно и до результата",
+      "imagesWithoutAlt": 0,
+      "title": "О студии — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "768x1024",
+    "page": "contact",
+    "url": "/contact",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Расскажите про задачу",
+      "imagesWithoutAlt": 0,
+      "title": "Контакты — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "768x1024",
+    "page": "not-found",
+    "url": "/no-such-page-xyz",
+    "status": 404,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "404",
+      "imagesWithoutAlt": 0,
+      "title": "404: This page could not be found.",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "pageErrors": []
+  },
+  {
+    "viewport": "768x1024",
+    "page": "admin-login",
+    "url": "/admin/login",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 0,
+      "h1": null,
+      "imagesWithoutAlt": 0,
+      "title": "Войти — Серая Мышь",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "390x844",
+    "page": "home",
+    "url": "/",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Серая Мышь",
+      "imagesWithoutAlt": 0,
+      "title": "Серая Мышь — digital-студия",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "390x844",
+    "page": "cases",
+    "url": "/cases",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы сделали",
+      "imagesWithoutAlt": 0,
+      "title": "Кейсы — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "390x844",
+    "page": "case-detail",
+    "url": "/cases/demo-logistics-platform",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "[demo] Платформа для логистической компании",
+      "imagesWithoutAlt": 0,
+      "title": "[demo] Платформа для логистической компании — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "390x844",
+    "page": "services",
+    "url": "/services",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы делаем",
+      "imagesWithoutAlt": 0,
+      "title": "Услуги — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "390x844",
+    "page": "about",
+    "url": "/about",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Тихо, внимательно и до результата",
+      "imagesWithoutAlt": 0,
+      "title": "О студии — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "390x844",
+    "page": "contact",
+    "url": "/contact",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Расскажите про задачу",
+      "imagesWithoutAlt": 0,
+      "title": "Контакты — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "390x844",
+    "page": "not-found",
+    "url": "/no-such-page-xyz",
+    "status": 404,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "404",
+      "imagesWithoutAlt": 0,
+      "title": "404: This page could not be found.",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "pageErrors": []
+  },
+  {
+    "viewport": "390x844",
+    "page": "admin-login",
+    "url": "/admin/login",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 0,
+      "h1": null,
+      "imagesWithoutAlt": 0,
+      "title": "Войти — Серая Мышь",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "360x800",
+    "page": "home",
+    "url": "/",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Серая Мышь",
+      "imagesWithoutAlt": 0,
+      "title": "Серая Мышь — digital-студия",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "360x800",
+    "page": "cases",
+    "url": "/cases",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы сделали",
+      "imagesWithoutAlt": 0,
+      "title": "Кейсы — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "360x800",
+    "page": "case-detail",
+    "url": "/cases/demo-logistics-platform",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "[demo] Платформа для логистической компании",
+      "imagesWithoutAlt": 0,
+      "title": "[demo] Платформа для логистической компании — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "360x800",
+    "page": "services",
+    "url": "/services",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Что мы делаем",
+      "imagesWithoutAlt": 0,
+      "title": "Услуги — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "360x800",
+    "page": "about",
+    "url": "/about",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Тихо, внимательно и до результата",
+      "imagesWithoutAlt": 0,
+      "title": "О студии — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "360x800",
+    "page": "contact",
+    "url": "/contact",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "Расскажите про задачу",
+      "imagesWithoutAlt": 0,
+      "title": "Контакты — Серая Мышь",
+      "hasSkipLink": true
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  },
+  {
+    "viewport": "360x800",
+    "page": "not-found",
+    "url": "/no-such-page-xyz",
+    "status": 404,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 1,
+      "h1": "404",
+      "imagesWithoutAlt": 0,
+      "title": "404: This page could not be found.",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [
+      "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    ],
+    "pageErrors": []
+  },
+  {
+    "viewport": "360x800",
+    "page": "admin-login",
+    "url": "/admin/login",
+    "status": 200,
+    "checks": {
+      "overflowX": 0,
+      "offenders": [],
+      "h1Count": 0,
+      "h1": null,
+      "imagesWithoutAlt": 0,
+      "title": "Войти — Серая Мышь",
+      "hasSkipLink": false
+    },
+    "consoleErrors": [],
+    "pageErrors": []
+  }
+]

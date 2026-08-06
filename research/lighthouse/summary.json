@@ -1,0 +1,138 @@
+[
+  {
+    "page": "home",
+    "formFactor": "mobile",
+    "performance": 90,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": "1.1 s",
+    "lcp": "3.6 s",
+    "cls": "0",
+    "tbt": "60 ms",
+    "speedIndex": "1.1 s",
+    "failedAudits": [
+      "largest-contentful-paint: Largest Contentful Paint",
+      "max-potential-fid: Max Potential First Input Delay",
+      "interactive: Time to Interactive",
+      "redirects: Avoid multiple page redirects",
+      "unused-javascript: Reduce unused JavaScript",
+      "document-latency-insight: Document request latency",
+      "lcp-discovery-insight: LCP request discovery",
+      "legacy-javascript-insight: Legacy JavaScript",
+      "network-dependency-tree-insight: Network dependency tree",
+      "render-blocking-insight: Render-blocking requests"
+    ]
+  },
+  {
+    "page": "cases",
+    "formFactor": "mobile",
+    "performance": 91,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": "0.8 s",
+    "lcp": "3.6 s",
+    "cls": "0",
+    "tbt": "60 ms",
+    "speedIndex": "0.8 s",
+    "failedAudits": [
+      "largest-contentful-paint: Largest Contentful Paint",
+      "max-potential-fid: Max Potential First Input Delay",
+      "mainthread-work-breakdown: Minimize main-thread work",
+      "bootup-time: Reduce JavaScript execution time",
+      "unused-javascript: Reduce unused JavaScript",
+      "bf-cache: Page prevented back/forward cache restoration",
+      "forced-reflow-insight: Forced reflow",
+      "legacy-javascript-insight: Legacy JavaScript",
+      "render-blocking-insight: Render-blocking requests"
+    ]
+  },
+  {
+    "page": "case-detail",
+    "formFactor": "mobile",
+    "performance": 95,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": "0.8 s",
+    "lcp": "2.9 s",
+    "cls": "0",
+    "tbt": "50 ms",
+    "speedIndex": "0.8 s",
+    "failedAudits": [
+      "largest-contentful-paint: Largest Contentful Paint",
+      "max-potential-fid: Max Potential First Input Delay",
+      "unused-javascript: Reduce unused JavaScript",
+      "forced-reflow-insight: Forced reflow",
+      "legacy-javascript-insight: Legacy JavaScript",
+      "network-dependency-tree-insight: Network dependency tree",
+      "render-blocking-insight: Render-blocking requests"
+    ]
+  },
+  {
+    "page": "home",
+    "formFactor": "desktop",
+    "performance": 87,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": "0.3 s",
+    "lcp": "0.7 s",
+    "cls": "0",
+    "tbt": "300 ms",
+    "speedIndex": "0.7 s",
+    "failedAudits": [
+      "total-blocking-time: Total Blocking Time",
+      "max-potential-fid: Max Potential First Input Delay",
+      "mainthread-work-breakdown: Minimize main-thread work",
+      "valid-source-maps: Missing source maps for large first-party JavaScript",
+      "unused-javascript: Reduce unused JavaScript",
+      "lcp-discovery-insight: LCP request discovery",
+      "network-dependency-tree-insight: Network dependency tree",
+      "render-blocking-insight: Render-blocking requests"
+    ]
+  },
+  {
+    "page": "cases",
+    "formFactor": "desktop",
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": "0.2 s",
+    "lcp": "0.7 s",
+    "cls": "0",
+    "tbt": "0 ms",
+    "speedIndex": "0.2 s",
+    "failedAudits": [
+      "unused-javascript: Reduce unused JavaScript",
+      "bf-cache: Page prevented back/forward cache restoration",
+      "forced-reflow-insight: Forced reflow",
+      "legacy-javascript-insight: Legacy JavaScript",
+      "network-dependency-tree-insight: Network dependency tree",
+      "render-blocking-insight: Render-blocking requests"
+    ]
+  },
+  {
+    "page": "case-detail",
+    "formFactor": "desktop",
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "fcp": "0.2 s",
+    "lcp": "0.7 s",
+    "cls": "0",
+    "tbt": "0 ms",
+    "speedIndex": "0.2 s",
+    "failedAudits": [
+      "unused-javascript: Reduce unused JavaScript",
+      "forced-reflow-insight: Forced reflow",
+      "lcp-discovery-insight: LCP request discovery",
+      "legacy-javascript-insight: Legacy JavaScript",
+      "network-dependency-tree-insight: Network dependency tree",
+      "render-blocking-insight: Render-blocking requests"
+    ]
+  }
+]

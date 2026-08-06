@@ -1,0 +1,38 @@
+node_modules
+.pnpm-store
+
+.next
+out
+build
+dist
+
+.env
+.env.local
+.env.*.local
+
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+.DS_Store
+Thumbs.db
+
+# Payload
+/src/app/(payload)/admin/importMap.js
+
+# Локальное файловое хранилище медиа (dev)
+/public/media
+/media
+
+# Тесты
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
+/coverage
+
+# Локальный кэш исследовательских артефактов
+/research/**/*.har
+
+# TypeScript incremental build info
+tsconfig.tsbuildinfo

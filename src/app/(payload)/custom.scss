@@ -1,0 +1,14 @@
+/* Лёгкая подгонка админки под фирменные цвета. Компоненты Payload не переопределяем. */
+:root {
+  --theme-elevation-0: #ffffff;
+  --color-base-800: #22242a;
+}
+
+[data-theme='dark'] {
+  --theme-elevation-0: #101114;
+}
+
+.template-default__wrap,
+.template-minimal {
+  --theme-success-500: #7cf03d;
+}

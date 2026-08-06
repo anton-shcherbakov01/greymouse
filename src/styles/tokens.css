@@ -1,0 +1,139 @@
+/*
+  Дизайн-токены «Серой Мыши».
+  Единственный источник правды по цвету, типографике, сетке и motion.
+  Значения читаются и Tailwind (@theme), и обычным CSS, и WebGL-сценой.
+*/
+
+:root {
+  /* ── Цвет ─────────────────────────────────────────────────────────────
+     Серый мир и один сигнал. Названия — по роли, не по оттенку.        */
+  --gm-ink: #0b0c0e; /* почти чёрный — фон тёмных секций */
+  --gm-graphite: #16181c; /* графит — поверхности на тёмном */
+  --gm-slate: #2a2e35; /* холодный серый — границы на тёмном */
+  /* Контраст с --gm-ink = 5.6:1 — проходит AA для мелкого текста.
+     Более тёмный оттенок давал 4.1:1 и не проходил. */
+  --gm-steel: #868d99;
+  --gm-silver: #a8adb7; /* вторичный текст */
+  --gm-mist: #d9dbe0; /* границы на светлом */
+  --gm-paper: #f4f4f2; /* светлый нейтральный фон */
+  --gm-white: #ffffff;
+
+  /* Единственный акцент. Правило использования:
+     — как заливка с тёмным текстом поверх;
+     — как текст ТОЛЬКО на тёмном фоне (на светлом контраст недостаточен);
+     — как тонкая линия/подчёркивание.                                   */
+  --gm-signal: #c9f24a;
+  --gm-signal-dim: #a6c93c;
+
+  --gm-danger: #ff6b52;
+
+  /* ── Семантические роли: тёмная схема (по умолчанию) ───────────────── */
+  --bg: var(--gm-ink);
+  --bg-raised: var(--gm-graphite);
+  --fg: var(--gm-white);
+  --fg-muted: var(--gm-silver);
+  --fg-subtle: var(--gm-steel);
+  --border: var(--gm-slate);
+  --accent: var(--gm-signal);
+  --accent-fg: var(--gm-ink);
+
+  /* ── Типографика ───────────────────────────────────────────────────── */
+  --font-display: var(--font-onest), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+
+  /* Плавная шкала. Крупные размеры с отрицательным трекингом —
+     подтверждённый паттерн из исследования референсов.                  */
+  --text-meta: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: clamp(1.125rem, 0.4vw + 1.03rem, 1.3rem);
+  --text-xl: clamp(1.375rem, 0.9vw + 1.16rem, 1.75rem);
+  --text-2xl: clamp(1.75rem, 1.8vw + 1.32rem, 2.75rem);
+  --text-3xl: clamp(2.25rem, 3.4vw + 1.44rem, 4rem);
+  --text-4xl: clamp(2.75rem, 6vw + 1.3rem, 6rem);
+  --text-hero: clamp(3rem, 9vw + 0.5rem, 8.5rem);
+
+  --tracking-hero: -0.035em;
+  --tracking-display: -0.025em;
+  --tracking-tight: -0.015em;
+  --tracking-meta: 0.08em;
+
+  --leading-hero: 0.92;
+  --leading-display: 1.02;
+  --leading-heading: 1.12;
+  --leading-body: 1.6;
+
+  /* ── Сетка и ритм ──────────────────────────────────────────────────── */
+  --container-max: 90rem; /* 1440px */
+  --container-text: 44rem;
+  --gutter: clamp(1.25rem, 4vw, 4.5rem);
+  --grid-gap: clamp(1rem, 2vw, 2rem);
+
+  --space-section: clamp(4.5rem, 9vw, 10rem);
+  --space-block: clamp(2.5rem, 5vw, 5rem);
+  --space-stack: clamp(1rem, 2vw, 1.75rem);
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+
+  /* ── Motion ────────────────────────────────────────────────────────── */
+  --dur-quick: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 640ms;
+  --dur-reveal: 720ms;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Пружина, аппроксимированная средствами CSS — приём из разбора gravity.nl. */
+  --ease-spring: linear(
+    0 0%,
+    0.0361 2.66%,
+    0.1424 5.65%,
+    0.4832 13.28%,
+    0.6535 17.27%,
+    0.7875 21.26%,
+    0.8878 25.58%,
+    0.9412 29.24%,
+    0.9702 32.9%,
+    0.9927 38.22%,
+    1.0033 45.19%,
+    1.0043 53.15%,
+    1 100%
+  );
+
+  --stagger: 60ms;
+  --reveal-distance: 18px;
+
+  --header-height: 4.5rem;
+  --z-header: 50;
+  --z-menu: 60;
+  --z-skip: 70;
+}
+
+/* Светлые секции переопределяют семантические роли — благодаря этому одни и те же
+   компоненты работают на тёмном и светлом фоне без вариантов пропсов. */
+.gm-light {
+  --bg: var(--gm-paper);
+  --bg-raised: var(--gm-white);
+  --fg: var(--gm-ink);
+  --fg-muted: #4a4f58;
+  /* На светлом фоне нужен свой приглушённый оттенок: --gm-steel рассчитан
+     на почти чёрный фон и на бумаге даёт всего 3:1. */
+  --fg-subtle: #5f6672;
+  --border: var(--gm-mist);
+  --accent: var(--gm-signal-dim);
+  --accent-fg: var(--gm-ink);
+}
+
+.gm-dark {
+  --bg: var(--gm-ink);
+  --bg-raised: var(--gm-graphite);
+  --fg: var(--gm-white);
+  --fg-muted: var(--gm-silver);
+  --fg-subtle: var(--gm-steel);
+  --border: var(--gm-slate);
+  --accent: var(--gm-signal);
+  --accent-fg: var(--gm-ink);
+}
