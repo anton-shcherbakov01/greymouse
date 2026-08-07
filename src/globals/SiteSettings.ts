@@ -3,13 +3,14 @@ import type { GlobalConfig } from 'payload'
 import { anyone, isEditor } from '@/access'
 import { makeGlobalRevalidator } from '@/hooks/revalidate'
 import { seoField } from '@/fields/seo'
+import { DEFAULT_ACCENT, normaliseHex } from '@/lib/accent'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   label: 'Настройки сайта',
   admin: {
     group: 'Настройки',
-    description: 'Тексты первого экрана, контакты, футер и SEO по умолчанию.',
+    description: 'Оформление, тексты первого экрана, контакты, футер и SEO по умолчанию.',
   },
   access: {
     read: anyone,
@@ -22,6 +23,37 @@ export const SiteSettings: GlobalConfig = {
     {
       type: 'tabs',
       tabs: [
+        {
+          label: 'Оформление',
+          description: 'Логотип и акцентный цвет. Меняются без пересборки сайта.',
+          fields: [
+            {
+              name: 'logo',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Логотип',
+              admin: {
+                description:
+                  'PNG или SVG с прозрачным фоном. Шапка и подвал тёмные — надпись на логотипе должна быть светлой. Пусто — используется логотип из репозитория.',
+              },
+            },
+            {
+              name: 'accentColor',
+              type: 'text',
+              label: 'Акцентный цвет',
+              defaultValue: DEFAULT_ACCENT,
+              admin: {
+                description:
+                  'HEX, например #c9f24a. Приглушённый оттенок для светлых секций и цвет текста на кнопках считаются автоматически.',
+                placeholder: DEFAULT_ACCENT,
+              },
+              validate: (value: string | null | undefined) => {
+                if (!value) return true
+                return normaliseHex(value) ? true : 'Ожидается HEX-цвет: #c9f24a, c9f24a или #cf4.'
+              },
+            },
+          ],
+        },
         {
           label: 'Первый экран',
           fields: [
@@ -93,7 +125,13 @@ export const SiteSettings: GlobalConfig = {
               maxRows: 6,
               fields: [
                 { name: 'title', type: 'text', label: 'Название', required: true },
-                { name: 'text', type: 'textarea', label: 'Описание', required: true, maxLength: 320 },
+                {
+                  name: 'text',
+                  type: 'textarea',
+                  label: 'Описание',
+                  required: true,
+                  maxLength: 320,
+                },
               ],
             },
             {
@@ -104,8 +142,19 @@ export const SiteSettings: GlobalConfig = {
               maxRows: 6,
               fields: [
                 { name: 'title', type: 'text', label: 'Шаг', required: true },
-                { name: 'text', type: 'textarea', label: 'Описание', required: true, maxLength: 320 },
-                { name: 'duration', type: 'text', label: 'Срок', admin: { description: 'Например: «1–2 недели».' } },
+                {
+                  name: 'text',
+                  type: 'textarea',
+                  label: 'Описание',
+                  required: true,
+                  maxLength: 320,
+                },
+                {
+                  name: 'duration',
+                  type: 'text',
+                  label: 'Срок',
+                  admin: { description: 'Например: «1–2 недели».' },
+                },
               ],
             },
           ],
@@ -138,7 +187,9 @@ export const SiteSettings: GlobalConfig = {
               type: 'text',
               label: 'Telegram',
               defaultValue: 'https://t.me/AAntonShch',
-              admin: { description: 'Полный URL, например https://t.me/username. Пусто — не показывается.' },
+              admin: {
+                description: 'Полный URL, например https://t.me/username. Пусто — не показывается.',
+              },
             },
             {
               name: 'phone',
@@ -216,9 +267,7 @@ export const SiteSettings: GlobalConfig = {
                 description:
                   'Идентификаторы можно задать здесь или переменными окружения. Пустые значения — скрипты не подключаются.',
               },
-              fields: [
-                { name: 'yandexMetrikaId', type: 'text', label: 'Яндекс Метрика ID' },
-              ],
+              fields: [{ name: 'yandexMetrikaId', type: 'text', label: 'Яндекс Метрика ID' }],
             },
           ],
         },

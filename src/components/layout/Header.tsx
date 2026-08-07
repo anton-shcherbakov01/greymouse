@@ -1,12 +1,12 @@
 import Link from 'next/link'
 
 import { Wordmark } from '@/components/brand/Wordmark'
-import { getNavigation } from '@/lib/queries'
+import { getNavigation, getSiteSettings } from '@/lib/queries'
 
 import { MobileMenu } from './MobileMenu'
 
 export const Header = async () => {
-  const nav = await getNavigation()
+  const [nav, settings] = await Promise.all([getNavigation(), getSiteSettings()])
   const items = (nav.header ?? []).map((item) => ({
     label: item.label,
     href: item.href,
@@ -23,7 +23,7 @@ export const Header = async () => {
     >
       <div className="gm-container flex h-[var(--header-height)] items-center justify-between gap-6">
         <Link href="/" aria-label="Серая Мышь — на главную" className="shrink-0">
-          <Wordmark />
+          <Wordmark logo={settings.logo} />
         </Link>
 
         <nav aria-label="Основная навигация" className="hidden md:block">

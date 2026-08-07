@@ -13,12 +13,14 @@ export type { QualityTier } from './types'
 type SceneOptions = {
   canvas: HTMLCanvasElement
   reducedMotion: boolean
+  /** Акцент берётся из токенов документа: он настраивается в админке. */
+  accent: string
 }
 
 const COLOR_DEEP = new Color('#0e1014')
 const COLOR_LIFT = new Color('#a8b0be')
 const COLOR_PARTICLE = new Color('#8a91a0')
-const COLOR_ACCENT = new Color('#c9f24a')
+const FALLBACK_ACCENT = '#c9f24a'
 const COLOR_GLOW = new Color('#2a3242')
 
 /** Длительность вступления. Верхняя граница диапазона из концепции. */
@@ -96,8 +98,20 @@ export class GreySignalScene {
   /** Вызывается при потере контекста WebGL — обёртка прячет canvas. */
   onContextLostCallback: (() => void) | null = null
 
-  constructor({ canvas, reducedMotion }: SceneOptions) {
+  private readonly accent: Color
+
+  constructor({ canvas, reducedMotion, accent }: SceneOptions) {
     this.canvas = canvas
+    /*
+      Цвет приходит строкой из вычисленного стиля документа. Если он окажется
+      нечитаемым, three бросит исключение и сцена не запустится, — поэтому
+      разбор обёрнут, а запасное значение совпадает с токеном по умолчанию.
+    */
+    try {
+      this.accent = new Color(accent.trim() || FALLBACK_ACCENT)
+    } catch {
+      this.accent = new Color(FALLBACK_ACCENT)
+    }
     this.reducedMotion = reducedMotion
     this.frame.reducedMotion = reducedMotion
     this.quality = detectQuality()
@@ -121,22 +135,22 @@ export class GreySignalScene {
     this.scene.add(this.world)
 
     // Фон вне группы мира: он привязан к кадру камеры, а не к объекту.
-    this.backdrop = new HeroBackdrop(this.scene, { glow: COLOR_GLOW, accent: COLOR_ACCENT })
+    this.backdrop = new HeroBackdrop(this.scene, { glow: COLOR_GLOW, accent: this.accent })
     this.core = new GreySignalCore(this.world, {
       subdivision: preset.subdivision,
       contours: preset.contours,
       colorDeep: COLOR_DEEP,
       colorLift: COLOR_LIFT,
-      accent: COLOR_ACCENT,
+      accent: this.accent,
     })
     this.particles = new SignalParticles(this.world, {
       count: preset.particles,
       color: COLOR_PARTICLE,
-      accent: COLOR_ACCENT,
+      accent: this.accent,
     })
     this.whiskers = new SignalLines(this.world, buildWhiskers(preset.whiskersPerSide), {
       color: COLOR_LIFT,
-      accent: COLOR_ACCENT,
+      accent: this.accent,
       opacity: 0.24,
       bendScale: 0.34,
       flowScale: 0.9,
@@ -145,7 +159,7 @@ export class GreySignalScene {
     })
     this.trail = new SignalLines(this.world, buildTrail(), {
       color: COLOR_LIFT,
-      accent: COLOR_ACCENT,
+      accent: this.accent,
       opacity: 0.22,
       bendScale: 0.16,
       flowScale: 1.3,
@@ -155,7 +169,7 @@ export class GreySignalScene {
     this.grid = preset.grid
       ? new SignalLines(this.world, buildGrid(), {
           color: COLOR_LIFT,
-          accent: COLOR_ACCENT,
+          accent: this.accent,
           opacity: 0.42,
           bendScale: 0.06,
           flowScale: 0.4,

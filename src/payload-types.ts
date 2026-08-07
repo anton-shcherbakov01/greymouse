@@ -1420,13 +1420,21 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * Тексты первого экрана, контакты, футер и SEO по умолчанию.
+ * Оформление, тексты первого экрана, контакты, футер и SEO по умолчанию.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
  */
 export interface SiteSetting {
   id: number;
+  /**
+   * PNG или SVG с прозрачным фоном. Шапка и подвал тёмные — надпись на логотипе должна быть светлой. Пусто — используется логотип из репозитория.
+   */
+  logo?: (number | null) | Media;
+  /**
+   * HEX, например #c9f24a. Приглушённый оттенок для светлых секций и цвет текста на кнопках считаются автоматически.
+   */
+  accentColor?: string | null;
   siteName: string;
   heroHeading: string;
   heroSubheading: string;
@@ -1565,6 +1573,8 @@ export interface Navigation {
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
+  logo?: T;
+  accentColor?: T;
   siteName?: T;
   heroHeading?: T;
   heroSubheading?: T;

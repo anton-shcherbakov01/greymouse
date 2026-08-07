@@ -4,6 +4,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { Analytics } from '@/components/layout/Analytics'
 import { fontVariables } from '@/lib/fonts'
+import { accentStyleSheet, deriveAccentPalette } from '@/lib/accent'
 import { getSiteSettings } from '@/lib/queries'
 import { absoluteUrl, SITE_URL } from '@/lib/site'
 
@@ -67,9 +68,19 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const metrikaId =
     settings.analytics?.yandexMetrikaId || process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID || ''
 
+  /*
+    Акцент из настроек подставляется переопределением базовых токенов прямо
+    в документе. Сборка от него не зависит: цвет меняется в админке и
+    применяется после ревалидации страницы, а не после деплоя.
+  */
+  const accent = deriveAccentPalette(settings.accentColor)
+
   return (
     <html lang="ru" className={fontVariables}>
-      <body className="gm-dark min-h-dvh">
+      <head>
+        <style>{accentStyleSheet(accent)}</style>
+      </head>
+      <body className="gm-dark min-h-dvh" data-accent={accent.signal}>
         <a className="gm-skip-link" href="#main">
           Перейти к содержимому
         </a>

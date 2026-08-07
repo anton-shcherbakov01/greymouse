@@ -16,7 +16,7 @@ export const Footer = async () => {
       <div className="gm-container py-[var(--space-block)]">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr] md:gap-12">
           <div>
-            <Wordmark />
+            <Wordmark logo={settings.logo} />
             {settings.footerText && (
               <p className="mt-4 max-w-sm text-[0.9375rem] text-[var(--fg-muted)]">
                 {settings.footerText}
@@ -72,7 +72,8 @@ export const Footer = async () => {
 
         <div className="flex flex-col gap-4 text-[0.8125rem] text-[var(--fg-subtle)] md:flex-row md:items-center md:justify-between">
           <p>
-            © {year} {settings.legalName || settings.siteName || 'Серая Мышь'} · {SITE_DOMAIN_DISPLAY}
+            © {year} {settings.legalName || settings.siteName || 'Серая Мышь'} ·{' '}
+            {SITE_DOMAIN_DISPLAY}
           </p>
           {legal.length > 0 && (
             <ul className="flex flex-wrap gap-x-5 gap-y-2">

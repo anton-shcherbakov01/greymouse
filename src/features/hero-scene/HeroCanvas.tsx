@@ -38,7 +38,16 @@ export const HeroCanvas = () => {
         const { GreySignalScene: SceneClass } = await import('./GreySignalScene')
         if (cancelled) return
 
-        scene = new SceneClass({ canvas, reducedMotion })
+        /*
+          Акцент читается из вычисленного стиля документа, а не задаётся
+          константой: он настраивается в админке и подставляется в токены
+          при отрисовке страницы.
+        */
+        const accent = getComputedStyle(document.documentElement)
+          .getPropertyValue('--gm-signal')
+          .trim()
+
+        scene = new SceneClass({ canvas, reducedMotion, accent })
         scene.onContextLostCallback = () => setVisible(false)
 
         const applySize = () => {
