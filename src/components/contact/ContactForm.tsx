@@ -53,7 +53,12 @@ export const ContactForm = ({ consentText }: { consentText: string }) => {
         error={state.fieldErrors.contact}
       />
       <div className="grid gap-6 sm:grid-cols-2">
-        <Field name="company" label="Компания" autoComplete="organization" error={state.fieldErrors.company} />
+        <Field
+          name="company"
+          label="Компания"
+          autoComplete="organization"
+          error={state.fieldErrors.company}
+        />
         <Field name="budget" label="Ориентир по бюджету" error={state.fieldErrors.budget} />
       </div>
       <Field
@@ -126,11 +131,15 @@ const Field = ({
     'aria-invalid': error ? (true as const) : undefined,
     'aria-describedby': describedBy || undefined,
     className:
-      'w-full border-b border-[var(--border)] bg-transparent py-2.5 text-[1.0625rem] outline-none transition-colors duration-[var(--dur-quick)] focus:border-[var(--accent)] aria-[invalid=true]:border-[var(--gm-danger)]',
+      'w-full resize-y bg-transparent py-2 text-[1.0625rem] outline-none placeholder:text-[var(--fg-subtle)]',
   }
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div
+      className={`group/field flex flex-col gap-1.5 rounded-[var(--radius-md)] border bg-[var(--bg-raised)] px-4 py-3.5 transition-[border-color,box-shadow,background-color] duration-[var(--dur-quick)] focus-within:border-[var(--accent)] focus-within:shadow-[0_0_0_1px_var(--accent)] ${
+        error ? 'border-[var(--gm-danger)]' : 'border-[var(--border)]'
+      }`}
+    >
       <label htmlFor={id} className="gm-eyebrow">
         {label}
         {required && <span className="text-[var(--accent)]"> *</span>}

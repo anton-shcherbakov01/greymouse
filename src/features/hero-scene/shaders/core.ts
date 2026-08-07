@@ -3,10 +3,8 @@ import { SIMPLEX_3D } from './noise'
 /**
  * Ядро сцены — «живой металл».
  *
- * Форма складывается из трёх слагаемых: медленная крупная пластика на шуме,
- * постоянный силуэт (сжатие, вытягивание, две доли сверху) и локальная волна
- * от указателя. Освещение считается вручную — двум лампам, ободку и френелю
- * здесь достаточно, а полный PBR стоил бы дороже без видимой разницы.
+ * Узнаваемый силуэт теперь собирается несколькими объёмами в GreySignalCore,
+ * а шейдер отвечает за общую живую поверхность и локальную волну от указателя.
  */
 
 const SHAPE = /* glsl */ `
@@ -17,24 +15,6 @@ uniform float uInteraction;
 uniform float uContact;
 uniform float uReducedMotion;
 uniform vec3  uPointerWorld;
-
-/*
-  Силуэт. Постоянная составляющая, она не анимируется — именно она отвечает за
-  узнаваемость: приплюснутая капля, вытянутая назад, с двумя мягкими долями
-  в верхней части. По отдельности ни одна деталь не читается как «ухо»;
-  образ собирается только целиком и не сразу.
-*/
-float silhouette(vec3 dir) {
-  // Две доли по бокам от вертикали, примерно на 35°.
-  float up = smoothstep(0.30, 0.92, dir.y);
-  float side = pow(abs(dir.x), 1.15) * (1.0 - abs(dir.z) * 0.45);
-  float lobes = up * side * 0.42;
-
-  // Морда вытянута назад: объект «смотрит» в глубину сцены, а не на зрителя.
-  float snout = smoothstep(0.15, 1.0, -dir.z) * 0.14;
-
-  return lobes + snout;
-}
 
 /** Возвращает смещённую точку; поле шума отдаётся наружу для контуров. */
 vec3 shapePosition(vec3 basePosition, out float field) {
@@ -60,15 +40,15 @@ vec3 shapePosition(vec3 basePosition, out float field) {
   float toPointer = dot(dir, uPointerWorld);
   float wave = exp(-pow((1.0 - toPointer) * 2.6, 2.0)) * uInteraction * 0.085;
 
-  float offset = (base + detail) * uAmplitude * breath + silhouette(dir) + wave;
+  float offset = (base + detail) * uAmplitude * breath + wave;
 
   // Вступление: точки стартуют разбросанными и стягиваются к форме.
   float scatter = pow(1.0 - uReveal, 2.0);
   offset += snoise(dir * 2.2 + vec3(19.4)) * scatter * 1.35;
 
   vec3 displaced = basePosition * (1.0 + offset);
-  // Приплюснутость по вертикали и лёгкое раскрытие при наведении на контакты.
-  displaced.y *= 0.78 + uContact * 0.05;
+  // Лёгкое раскрытие при наведении на контакты.
+  displaced.y *= 1.0 + uContact * 0.045;
   displaced.z *= 1.06;
   return displaced;
 }

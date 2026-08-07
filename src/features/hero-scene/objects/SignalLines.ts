@@ -126,31 +126,29 @@ const buildGeometry = (polylines: Polyline[]): BufferGeometry => {
 }
 
 /**
- * «Цифровые усы»: по несколько тонких линий с каждой стороны. Они начинаются
- * у объекта и уходят в стороны, слегка провисая — это опознаваемая деталь
+ * «Цифровые усы»: несколько тонких линий выходят из морды и слегка провисают.
+ * Это опознаваемая деталь
  * сцены, поэтому она остаётся даже на низком уровне качества и на мобильных.
  */
 export const buildWhiskers = (perSide: number): Polyline[] => {
   const result: Polyline[] = []
   const segments = 24
 
-  for (const side of [-1, 1]) {
-    for (let index = 0; index < perSide; index += 1) {
-      const lift = 0.28 - index * 0.26
-      const reach = 1.1 + index * 0.3
-      const points: [number, number, number][] = []
+  for (let index = 0; index < perSide; index += 1) {
+    const lift = 0.18 - index * 0.17
+    const reach = 1.0 + index * 0.2
+    const points: [number, number, number][] = []
 
-      for (let i = 0; i <= segments; i += 1) {
-        const t = i / segments
-        points.push([
-          side * (0.9 + t * reach),
-          lift + Math.sin(t * Math.PI * 0.85) * 0.3 - t * t * 0.55,
-          Math.cos(t * Math.PI * 0.6) * 0.35 - 0.15,
-        ])
-      }
-
-      result.push({ points, line: index + (side > 0 ? 0 : perSide), side })
+    for (let i = 0; i <= segments; i += 1) {
+      const t = i / segments
+      points.push([
+        1.42 + t * reach,
+        lift + Math.sin(t * Math.PI * 0.8) * 0.12 - t * t * 0.26,
+        0.12 + Math.cos(t * Math.PI * 0.55) * 0.18,
+      ])
     }
+
+    result.push({ points, line: index, side: 1 })
   }
 
   return result

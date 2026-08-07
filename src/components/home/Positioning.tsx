@@ -8,16 +8,14 @@ export const Positioning = ({ settings }: { settings: SiteSetting }) => {
   return (
     <section className="gm-light gm-section">
       <div className="gm-container">
-        {/* Асимметрия «крупное утверждение слева + плотный текст справа»
-            — приём, снятый со страницы услуг lightbase. */}
         <div className="grid gap-[var(--space-stack)] md:grid-cols-12 md:gap-[var(--grid-gap)]">
           <Reveal as="div" className="md:col-span-2">
-            {/* Надзаголовок и есть заголовок секции: иначе h1 → h3 идёт с пропуском уровня. */}
-            <h2 className="gm-eyebrow">Кто мы</h2>
+            <p className="gm-eyebrow">Как работаем</p>
           </Reveal>
 
           <Reveal as="div" index={1} className="md:col-span-10">
-            <p className="gm-heading-2 max-w-[22ch] text-balance">{settings.positioning}</p>
+            <h2 className="gm-heading-2 max-w-[20ch] text-balance">Мыши работают тихо.</h2>
+            <p className="gm-lede mt-6">{settings.positioning}</p>
           </Reveal>
         </div>
 

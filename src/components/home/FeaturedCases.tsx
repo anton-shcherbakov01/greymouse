@@ -13,7 +13,7 @@ export const FeaturedCases = ({ cases }: { cases: Case[] }) => {
       <div className="gm-container">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="gm-eyebrow">Избранное</p>
+            <p className="gm-eyebrow">Но следы остаются</p>
             <h2 className="gm-heading-1 mt-3">Кейсы</h2>
           </div>
           <ButtonLink href="/cases" variant="outline">

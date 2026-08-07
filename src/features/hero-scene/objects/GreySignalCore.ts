@@ -1,4 +1,12 @@
-import { Color, IcosahedronGeometry, Mesh, Object3D, ShaderMaterial, Vector3 } from 'three'
+import {
+  Color,
+  IcosahedronGeometry,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  ShaderMaterial,
+  Vector3,
+} from 'three'
 
 import { coreFragmentShader, coreVertexShader } from '../shaders/core'
 import type { HeroFrame, HeroObject } from '../types'
@@ -22,20 +30,25 @@ const RADIUS = 1.0
  */
 export class GreySignalCore implements HeroObject {
   readonly group = new Object3D()
-  private readonly mesh: Mesh<IcosahedronGeometry, ShaderMaterial>
+  private readonly geometry: IcosahedronGeometry
+  private readonly detailGeometry = new IcosahedronGeometry(1, 2)
+  private readonly material: ShaderMaterial
+  private readonly detailMaterials: MeshBasicMaterial[]
   private readonly rotation = { x: 0, y: 0 }
 
   constructor(parent: Object3D, options: CoreOptions) {
-    const geometry = new IcosahedronGeometry(RADIUS, options.subdivision)
+    // Пять объёмов дают силуэт дешевле, чем пять копий прежней сверхплотной сетки.
+    const coreSubdivision = Math.max(3, options.subdivision - 2)
+    this.geometry = new IcosahedronGeometry(RADIUS, coreSubdivision)
 
     /*
       Шаг численной нормали привязан к плотности сетки: на редкой сетке крупный
       шаг усредняет форму и поверхность выглядит гранёной — так было в прошлой
       версии. Значения подобраны на глаз по подразделениям 4…6.
     */
-    const normalEps = options.subdivision >= 6 ? 0.008 : options.subdivision === 5 ? 0.012 : 0.02
+    const normalEps = coreSubdivision >= 4 ? 0.014 : 0.022
 
-    const material = new ShaderMaterial({
+    this.material = new ShaderMaterial({
       vertexShader: coreVertexShader,
       fragmentShader: coreFragmentShader,
       transparent: true,
@@ -59,13 +72,57 @@ export class GreySignalCore implements HeroObject {
       },
     })
 
-    this.mesh = new Mesh(geometry, material)
-    this.group.add(this.mesh)
+    const addPart = (
+      position: [number, number, number],
+      scale: [number, number, number],
+      rotationZ = 0,
+    ) => {
+      const mesh = new Mesh(this.geometry, this.material)
+      mesh.position.set(...position)
+      mesh.scale.set(...scale)
+      mesh.rotation.z = rotationZ
+      this.group.add(mesh)
+      return mesh
+    }
+
+    /*
+      Силуэт собирается из нескольких мягких объёмов. В отличие от прежнего
+      единственного «камня» он читается как мышь ещё в почти полной темноте:
+      корпус, голова, вытянутая морда и два уха образуют узнаваемый профиль.
+    */
+    addPart([-0.28, -0.14, 0], [1.18, 0.72, 0.78])
+    addPart([0.68, 0.08, 0.04], [0.7, 0.56, 0.6])
+    addPart([1.16, -0.02, 0.04], [0.46, 0.3, 0.38], -0.08)
+    addPart([0.48, 0.61, -0.22], [0.25, 0.29, 0.13], -0.16)
+    addPart([0.58, 0.66, 0.25], [0.29, 0.33, 0.15], -0.11)
+
+    const eyeMaterial = new MeshBasicMaterial({
+      color: new Color('#08090b'),
+      transparent: true,
+      opacity: 0,
+    })
+    const noseMaterial = new MeshBasicMaterial({
+      color: options.accent,
+      transparent: true,
+      opacity: 0,
+    })
+    this.detailMaterials = [eyeMaterial, noseMaterial]
+
+    const eye = new Mesh(this.detailGeometry, eyeMaterial)
+    eye.position.set(0.93, 0.22, 0.58)
+    eye.scale.setScalar(0.065)
+    this.group.add(eye)
+
+    const nose = new Mesh(this.detailGeometry, noseMaterial)
+    nose.position.set(1.57, -0.02, 0.08)
+    nose.scale.setScalar(0.075)
+    this.group.add(nose)
+
     parent.add(this.group)
   }
 
   update(frame: HeroFrame) {
-    const { uniforms } = this.mesh.material
+    const { uniforms } = this.material
 
     uniforms.uTime.value = frame.time
     uniforms.uReveal.value = frame.reveal
@@ -78,6 +135,8 @@ export class GreySignalCore implements HeroObject {
     uniforms.uPointerWorld.value.copy(frame.pointerWorld)
     // Амплитуда чуть растёт при взаимодействии — объект «оживает» под курсором.
     uniforms.uAmplitude.value = (frame.reducedMotion ? 0.045 : 0.065) + frame.interaction * 0.01
+    const detailOpacity = Math.min(1, frame.reveal * 1.35) * (0.78 + frame.interaction * 0.22)
+    for (const material of this.detailMaterials) material.opacity = detailOpacity
 
     /*
       Поворот к указателю — не привязка, а цель для демпфера. Амплитуда мала
@@ -95,12 +154,14 @@ export class GreySignalCore implements HeroObject {
   }
 
   setCameraPosition(position: Vector3) {
-    this.mesh.material.uniforms.uCameraPosition.value.copy(position)
+    this.material.uniforms.uCameraPosition.value.copy(position)
   }
 
   dispose() {
-    this.mesh.geometry.dispose()
-    this.mesh.material.dispose()
+    this.geometry.dispose()
+    this.detailGeometry.dispose()
+    this.material.dispose()
+    this.detailMaterials.forEach((material) => material.dispose())
     this.group.removeFromParent()
   }
 }

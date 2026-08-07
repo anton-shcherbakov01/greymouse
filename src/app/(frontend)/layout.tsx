@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { Analytics } from '@/components/layout/Analytics'
+import { MouseTrailCursor } from '@/components/layout/MouseTrailCursor'
 import { fontVariables } from '@/lib/fonts'
 import { accentStyleSheet, deriveAccentPalette } from '@/lib/accent'
 import { getSiteSettings } from '@/lib/queries'
@@ -90,6 +91,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
         </main>
         <Footer />
         <Analytics metrikaId={metrikaId} />
+        <MouseTrailCursor />
       </body>
     </html>
   )

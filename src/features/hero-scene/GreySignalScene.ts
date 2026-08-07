@@ -74,6 +74,8 @@ export class GreySignalScene {
   /** Цели интерактивных величин; в кадре к ним подтягиваются текущие. */
   private readonly target = { pointerX: 0, pointerY: 0, scroll: 0, cases: 0, contact: 0 }
   private pointerMovedAt = -Infinity
+  private discovery = 0
+  private readonly lastPointer = { x: 0, y: 0, seen: false }
   private lastGridPulseAt = -Infinity
   private compact = false
   /** Опорное положение камеры для текущей раскладки; от него идёт параллакс. */
@@ -114,6 +116,7 @@ export class GreySignalScene {
     }
     this.reducedMotion = reducedMotion
     this.frame.reducedMotion = reducedMotion
+    this.discovery = reducedMotion ? 1 : 0
     this.quality = detectQuality()
     this.qualityCeiling = this.quality
 
@@ -195,6 +198,7 @@ export class GreySignalScene {
 
     this.compact = width < 768
     this.frame.compact = this.compact
+    if (this.compact) this.discovery = Math.max(this.discovery, 0.82)
 
     this.camera.aspect = width / height
     /*
@@ -237,6 +241,15 @@ export class GreySignalScene {
 
   setPointer(x: number, y: number) {
     if (this.compact) return
+    if (this.lastPointer.seen) {
+      const distance = Math.hypot(x - this.lastPointer.x, y - this.lastPointer.y)
+      this.discovery = Math.min(1, this.discovery + Math.min(0.12, distance * 0.34))
+    } else {
+      this.discovery = Math.max(this.discovery, 0.3)
+      this.lastPointer.seen = true
+    }
+    this.lastPointer.x = x
+    this.lastPointer.y = y
     this.target.pointerX = x
     this.target.pointerY = y
     this.pointerMovedAt = performance.now()
@@ -330,7 +343,12 @@ export class GreySignalScene {
     // Плавное начало и конец: easeInOutCubic.
     const eased =
       introProgress < 0.5 ? 4 * introProgress ** 3 : 1 - Math.pow(-2 * introProgress + 2, 3) / 2
-    frame.reveal = this.reducedMotion ? 1 : eased
+    const passiveReveal = eased * 0.26
+    const compactReveal = eased * 0.82
+    const revealTarget = this.reducedMotion
+      ? 1
+      : Math.max(this.compact ? compactReveal : passiveReveal, this.discovery)
+    frame.reveal = damp(frame.reveal, revealTarget, 2.6, delta)
 
     // Один импульс в момент завершения сборки.
     if (introProgress >= 1 && this.lastGridPulseAt === -Infinity) this.pulseGrid()

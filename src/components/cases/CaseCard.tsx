@@ -29,17 +29,27 @@ export const CaseCard = ({
       {/* aria-label не задаём: видимого текста карточки достаточно,
           а несовпадение подписи и содержимого ломает доступное имя ссылки. */}
       <Link href={`/cases/${caseItem.slug}`} className="block focus-visible:outline-offset-6">
-        <MediaImage
-          media={caseItem.cover}
-          aspect={large ? '16 / 10' : '4 / 3'}
-          sizes={
-            large
-              ? '(max-width: 768px) 100vw, (max-width: 1440px) 66vw, 900px'
-              : '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px'
-          }
-          priority={priority}
-          className="transition-[transform,filter] duration-[var(--dur-slow)] ease-[var(--ease-out)] group-hover:scale-[1.02] motion-reduce:group-hover:scale-100"
-        />
+        <div className="gm-case-burrow">
+          <MediaImage
+            media={caseItem.cover}
+            aspect={large ? '16 / 10' : '4 / 3'}
+            sizes={
+              large
+                ? '(max-width: 768px) 100vw, (max-width: 1440px) 66vw, 900px'
+                : '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px'
+            }
+            priority={priority}
+            className="gm-case-burrow__image"
+          />
+          <span className="gm-case-burrow__panel gm-case-burrow__panel--top" aria-hidden="true" />
+          <span
+            className="gm-case-burrow__panel gm-case-burrow__panel--bottom"
+            aria-hidden="true"
+          />
+          <span className="gm-case-burrow__label gm-eyebrow" aria-hidden="true">
+            {caseItem.client} / открыть кейс
+          </span>
+        </div>
 
         <div className="mt-5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
           <div className="gm-eyebrow">

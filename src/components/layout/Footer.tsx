@@ -13,15 +13,15 @@ export const Footer = async () => {
 
   return (
     <footer className="gm-dark border-t border-[var(--border)] bg-[var(--bg)] text-[var(--fg)]">
-      <div className="gm-container py-[var(--space-block)]">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr] md:gap-12">
-          <div>
-            <Wordmark logo={settings.logo} />
-            {settings.footerText && (
-              <p className="mt-4 max-w-sm text-[0.9375rem] text-[var(--fg-muted)]">
-                {settings.footerText}
-              </p>
-            )}
+      <div className="gm-container py-[clamp(3.5rem,7vw,7rem)]">
+        <div className="mb-12 h-px w-full bg-[linear-gradient(90deg,var(--accent),var(--border)_28%,transparent)]" />
+
+        <div className="grid gap-12 md:grid-cols-[minmax(18rem,1.8fr)_repeat(2,minmax(8rem,0.7fr))] md:gap-10">
+          <div className="max-w-xl">
+            <Wordmark logo={settings.logo} size="presentation" />
+            <p className="mt-6 max-w-md text-[clamp(1rem,1.2vw,1.25rem)] leading-relaxed text-[var(--fg-muted)]">
+              {settings.footerText || 'Тихо делаем заметные цифровые продукты.'}
+            </p>
             {settings.email && (
               <a
                 href={`mailto:${settings.email}`}
@@ -32,7 +32,7 @@ export const Footer = async () => {
             )}
           </div>
 
-          {groups.map((group) => (
+          {groups.slice(0, 2).map((group) => (
             <nav key={String(group.id ?? group.title)} aria-label={group.title}>
               <h2 className="gm-eyebrow">{group.title}</h2>
               <ul className="mt-4 flex flex-col gap-2.5">

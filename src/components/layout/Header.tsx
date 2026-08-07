@@ -23,7 +23,7 @@ export const Header = async () => {
     >
       <div className="gm-container flex h-[var(--header-height)] items-center justify-between gap-6">
         <Link href="/" aria-label="Серая Мышь — на главную" className="shrink-0">
-          <Wordmark logo={settings.logo} />
+          <Wordmark logo={settings.logo} className="translate-y-[2px]" />
         </Link>
 
         <nav aria-label="Основная навигация" className="hidden md:block">
