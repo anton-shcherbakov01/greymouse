@@ -59,6 +59,16 @@ const EMPTY_SITE_SETTINGS = {
   heroSubheading: 'Тихо делаем заметные цифровые продукты.',
   primaryCta: { label: 'Смотреть кейсы', href: '/cases' },
   secondaryCta: { label: 'Обсудить проект', href: '/contact' },
+  demoShowcase: {
+    enabled: true,
+    eyebrow: 'Продуктовая лаборатория',
+    title: 'Не картинка, а рабочий продукт.',
+    description:
+      'Интерактивный пульт собственника: выручка, воронка, команда и сделки под риском. Можно открыть и проверить прямо здесь.',
+    companyName: 'Вектор Трейд',
+    ctaLabel: 'Открыть на весь экран',
+    note: 'Демо-данные · интерфейс интерактивный',
+  },
   updatedAt: new Date(0).toISOString(),
   createdAt: new Date(0).toISOString(),
 } as SiteSetting

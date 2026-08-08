@@ -1469,6 +1469,15 @@ export interface SiteSetting {
         id?: string | null;
       }[]
     | null;
+  demoShowcase?: {
+    enabled?: boolean | null;
+    eyebrow?: string | null;
+    title?: string | null;
+    description?: string | null;
+    companyName?: string | null;
+    ctaLabel?: string | null;
+    note?: string | null;
+  };
   contactHeading?: string | null;
   contactText?: string | null;
   /**
@@ -1606,6 +1615,17 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         text?: T;
         duration?: T;
         id?: T;
+      };
+  demoShowcase?:
+    | T
+    | {
+        enabled?: T;
+        eyebrow?: T;
+        title?: T;
+        description?: T;
+        companyName?: T;
+        ctaLabel?: T;
+        note?: T;
       };
   contactHeading?: T;
   contactText?: T;

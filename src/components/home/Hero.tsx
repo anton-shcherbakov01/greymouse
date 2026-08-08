@@ -26,13 +26,13 @@ export const Hero = ({ settings }: { settings: SiteSetting }) => {
           // Метка для scripts/hero-poster.mjs: при съёмке постера этот слой
           // и текст скрываются, иначе постер снимет сам себя вместе с текстом.
           data-hero-poster=""
-          src="/hero-poster-v2.png"
+          src="/hero-poster-v3.jpg"
           alt=""
           fill
           priority
           sizes="100vw"
           quality={70}
-          className="object-contain object-[center_16%] md:object-cover md:object-center"
+          className="object-contain object-[center_16%] md:object-cover md:object-right"
         />
         <HeroScene />
         {/* Градиент гарантирует контраст текста при любом состоянии сцены. */}

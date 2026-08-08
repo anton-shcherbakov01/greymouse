@@ -93,8 +93,8 @@ export class GreySignalCore implements HeroObject {
     addPart([-0.28, -0.14, 0], [1.18, 0.72, 0.78])
     addPart([0.68, 0.08, 0.04], [0.7, 0.56, 0.6])
     addPart([1.16, -0.02, 0.04], [0.46, 0.3, 0.38], -0.08)
-    addPart([0.48, 0.61, -0.22], [0.25, 0.29, 0.13], -0.16)
-    addPart([0.58, 0.66, 0.25], [0.29, 0.33, 0.15], -0.11)
+    addPart([0.65, 0.63, -0.55], [0.25, 0.29, 0.13], -0.16)
+    addPart([0.65, 0.67, 0.26], [0.29, 0.33, 0.15], -0.11)
 
     const eyeMaterial = new MeshBasicMaterial({
       color: new Color('#08090b'),
@@ -108,10 +108,15 @@ export class GreySignalCore implements HeroObject {
     })
     this.detailMaterials = [eyeMaterial, noseMaterial]
 
-    const eye = new Mesh(this.detailGeometry, eyeMaterial)
-    eye.position.set(0.93, 0.22, 0.58)
-    eye.scale.setScalar(0.065)
-    this.group.add(eye)
+    const addEye = (x: number, z: number) => {
+      const eye = new Mesh(this.detailGeometry, eyeMaterial)
+      eye.position.set(x, 0.22, z)
+      eye.scale.setScalar(0.065)
+      this.group.add(eye)
+    }
+
+    addEye(1.1, 0.42)
+    addEye(1.1, -0.12)
 
     const nose = new Mesh(this.detailGeometry, noseMaterial)
     nose.position.set(1.57, -0.02, 0.08)

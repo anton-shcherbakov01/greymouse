@@ -52,7 +52,27 @@ await page.addStyleTag({
   `,
 })
 
-await page.waitForTimeout(9000)
+/*
+  На десктопе мышь окончательно собирается, когда посетитель исследует сцену
+  курсором. Для постера воспроизводим короткое естественное движение — иначе
+  в кадр попадал намеренно рассыпанный стартовый силуэт, а не готовая форма.
+*/
+for (const [x, y] of [
+  [260, 190],
+  [470, 260],
+  [720, 170],
+  [960, 310],
+  [1210, 210],
+  [1390, 380],
+  [1160, 520],
+  [900, 390],
+  [1320, 290],
+]) {
+  await page.mouse.move(x, y)
+  await page.waitForTimeout(90)
+}
+
+await page.waitForTimeout(4200)
 
 const canvas = page.locator('canvas').first()
 const shot = await canvas.screenshot({ omitBackground: true })

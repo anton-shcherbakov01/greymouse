@@ -17,7 +17,15 @@ export const SiteSettings: GlobalConfig = {
     update: isEditor,
   },
   hooks: {
-    afterChange: [makeGlobalRevalidator('site-settings', ['/', '/about', '/contact', '/services'])],
+    afterChange: [
+      makeGlobalRevalidator('site-settings', [
+        '/',
+        '/about',
+        '/contact',
+        '/services',
+        '/demo/analytics',
+      ]),
+    ],
   },
   fields: [
     {
@@ -154,6 +162,69 @@ export const SiteSettings: GlobalConfig = {
                   type: 'text',
                   label: 'Срок',
                   admin: { description: 'Например: «1–2 недели».' },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Демо продукта',
+          description:
+            'Интерактивный дашборд на главной. Здесь секцию можно отредактировать или полностью убрать с публичного сайта.',
+          fields: [
+            {
+              name: 'demoShowcase',
+              type: 'group',
+              label: 'Grey Mouse Analytics',
+              fields: [
+                {
+                  name: 'enabled',
+                  type: 'checkbox',
+                  label: 'Показывать демо на сайте',
+                  defaultValue: true,
+                },
+                {
+                  name: 'eyebrow',
+                  type: 'text',
+                  label: 'Надзаголовок',
+                  defaultValue: 'Продуктовая лаборатория',
+                  maxLength: 80,
+                },
+                {
+                  name: 'title',
+                  type: 'text',
+                  label: 'Заголовок',
+                  defaultValue: 'Не картинка, а рабочий продукт.',
+                  maxLength: 120,
+                },
+                {
+                  name: 'description',
+                  type: 'textarea',
+                  label: 'Описание',
+                  defaultValue:
+                    'Интерактивный пульт собственника: выручка, воронка, команда и сделки под риском. Можно открыть и проверить прямо здесь.',
+                  maxLength: 420,
+                },
+                {
+                  name: 'companyName',
+                  type: 'text',
+                  label: 'Название компании внутри демо',
+                  defaultValue: 'Вектор Трейд',
+                  maxLength: 42,
+                },
+                {
+                  name: 'ctaLabel',
+                  type: 'text',
+                  label: 'Текст кнопки',
+                  defaultValue: 'Открыть на весь экран',
+                  maxLength: 80,
+                },
+                {
+                  name: 'note',
+                  type: 'text',
+                  label: 'Подпись под демо',
+                  defaultValue: 'Демо-данные · интерфейс интерактивный',
+                  maxLength: 120,
                 },
               ],
             },

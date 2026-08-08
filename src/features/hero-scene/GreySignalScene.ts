@@ -22,6 +22,8 @@ const COLOR_LIFT = new Color('#a8b0be')
 const COLOR_PARTICLE = new Color('#8a91a0')
 const FALLBACK_ACCENT = '#c9f24a'
 const COLOR_GLOW = new Color('#2a3242')
+/** Ракурс ¾: морда направлена к посетителю, но силуэт остаётся читаемым. */
+const FACE_CAMERA_Y = -1.05
 
 /** Длительность вступления. Верхняя граница диапазона из концепции. */
 const INTRO_SECONDS = 2.2
@@ -136,6 +138,7 @@ export class GreySignalScene {
     this.camera.position.set(0, 0.1, 6.2)
 
     this.scene.add(this.world)
+    this.world.rotation.y = FACE_CAMERA_Y
 
     // Фон вне группы мира: он привязан к кадру камеры, а не к объекту.
     this.backdrop = new HeroBackdrop(this.scene, { glow: COLOR_GLOW, accent: this.accent })
