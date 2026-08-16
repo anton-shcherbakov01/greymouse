@@ -2,8 +2,14 @@
 
 import { useEffect, useRef } from 'react'
 
-const INTERACTIVE_SELECTOR = 'a, button, [role="button"], input, textarea, select, summary'
-const TEXT_SELECTOR = 'input, textarea, [contenteditable="true"]'
+const INTERACTIVE_SELECTOR = 'a, button, [role="button"], select, summary'
+/*
+  Над обычным текстом системная каретка полезнее точки: по ней видно, что текст
+  можно выделить. Поэтому здесь не только поля ввода, но и абзацы, заголовки и
+  списки — над ними точка прячется, а CSS возвращает `cursor: text`.
+*/
+const TEXT_SELECTOR =
+  'input, textarea, [contenteditable="true"], p, li, h1, h2, h3, h4, h5, h6, blockquote, figcaption, dd, dt, td, th, label'
 
 /**
  * Небольшая сигнальная точка с серым хвостом — десктопная часть айдентики.
@@ -28,19 +34,39 @@ export const MouseTrailCursor = () => {
     let targetY = -100
     let tailX = -100
     let tailY = -100
+    let length = 0
+    let angle = 0
     let frame = 0
 
+    /*
+      Хвост крепится к самой точке и растёт назад по направлению движения:
+      раньше он рисовался в отстающей позиции и «отрывался» от точки, из-за
+      чего казался болтающимся отдельно.
+
+      Длина и угол сглаживаются отдельно от позиции. Угол пересчитывается
+      только при заметном смещении: на почти остановившемся курсоре atan2
+      скачет от шума и хвост дёргается.
+    */
     const draw = () => {
-      tailX += (targetX - tailX) * 0.18
-      tailY += (targetY - tailY) * 0.18
+      tailX += (targetX - tailX) * 0.16
+      tailY += (targetY - tailY) * 0.16
+
       const dx = targetX - tailX
       const dy = targetY - tailY
-      const length = Math.min(30, Math.max(12, Math.hypot(dx, dy) * 1.8))
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI)
+      const distance = Math.hypot(dx, dy)
+
+      if (distance > 0.6) {
+        // Направление «назад»: от точки к отстающей позиции.
+        const next = Math.atan2(-dy, -dx) * (180 / Math.PI)
+        const delta = ((next - angle + 540) % 360) - 180
+        angle += delta * 0.35
+      }
+
+      length += (Math.min(34, distance * 1.6) - length) * 0.2
 
       dot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`
-      tail.style.width = `${length}px`
-      tail.style.transform = `translate3d(${tailX}px, ${tailY}px, 0) rotate(${angle}deg)`
+      tail.style.width = `${length.toFixed(2)}px`
+      tail.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) rotate(${angle.toFixed(2)}deg)`
       frame = requestAnimationFrame(draw)
     }
 
@@ -52,10 +78,13 @@ export const MouseTrailCursor = () => {
     }
     const onOver = (event: PointerEvent) => {
       const target = event.target instanceof Element ? event.target : null
-      const isText = Boolean(target?.closest(TEXT_SELECTOR))
+      // Интерактивное важнее текстового: у ссылки внутри абзаца должна быть
+      // точка, а не каретка.
+      const isInteractive = Boolean(target?.closest(INTERACTIVE_SELECTOR))
+      const isText = !isInteractive && Boolean(target?.closest(TEXT_SELECTOR))
       dot.dataset.hidden = String(isText)
       tail.dataset.hidden = String(isText)
-      dot.dataset.interactive = String(Boolean(target?.closest(INTERACTIVE_SELECTOR)) && !isText)
+      dot.dataset.interactive = String(isInteractive)
     }
     const onLeave = () => {
       dot.dataset.visible = 'false'

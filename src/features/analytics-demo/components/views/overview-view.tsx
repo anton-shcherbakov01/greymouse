@@ -155,8 +155,8 @@ export function OverviewView({
 
         <Panel className="insights-panel">
           <PanelHeader
-            eyebrow="Автоматическая интерпретация"
-            title="Что происходит"
+            eyebrow="Что это значит"
+            title="Главное за сегодня"
             description="Главное, что требует решения сегодня"
           />
           <div className="insight-list">
@@ -324,7 +324,7 @@ export function OverviewView({
             <TrendingDown size={15} />{' '}
             {imported
               ? `${imported.staleCount} сделок на ${formatRub(imported.staleAmount, true)} не обновлялись более 7 дней.`
-              : `${formatRub(model.riskSummary.recoverableWeighted, true)} — взвешенный потенциал ${model.riskSummary.priorityCount} приоритетных сделок.`}
+              : `${formatRub(model.riskSummary.recoverableWeighted, true)} — столько можно вернуть по ${model.riskSummary.priorityCount} сделкам, если заняться ими сейчас.`}
           </p>
         </Panel>
       </div>

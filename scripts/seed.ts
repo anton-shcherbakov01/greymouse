@@ -129,10 +129,30 @@ const run = async () => {
 
   // ── Категории ──────────────────────────────────────────────────────────
   const categories = [
-    { slug: 'product', title: 'Цифровые продукты', sortOrder: 10, description: 'Веб-сервисы и приложения.' },
-    { slug: 'ecommerce', title: 'E-commerce', sortOrder: 20, description: 'Магазины и маркетплейсы.' },
-    { slug: 'corporate', title: 'Корпоративные сайты', sortOrder: 30, description: 'Сайты компаний и брендов.' },
-    { slug: 'internal', title: 'Внутренние системы', sortOrder: 40, description: 'Панели и админки.' },
+    {
+      slug: 'product',
+      title: 'Цифровые продукты',
+      sortOrder: 10,
+      description: 'Веб-сервисы и приложения.',
+    },
+    {
+      slug: 'ecommerce',
+      title: 'E-commerce',
+      sortOrder: 20,
+      description: 'Магазины и маркетплейсы.',
+    },
+    {
+      slug: 'corporate',
+      title: 'Корпоративные сайты',
+      sortOrder: 30,
+      description: 'Сайты компаний и брендов.',
+    },
+    {
+      slug: 'internal',
+      title: 'Внутренние системы',
+      sortOrder: 40,
+      description: 'Панели и админки.',
+    },
   ]
   const categoryIds: Record<string, number> = {}
   for (const category of categories) {
@@ -144,7 +164,6 @@ const run = async () => {
     {
       slug: 'discovery',
       title: 'Discovery и стратегия',
-      stage: 'research',
       icon: 'path',
       sortOrder: 10,
       promise: 'Понятная картина: что делаем, для кого и в каком порядке.',
@@ -169,7 +188,6 @@ const run = async () => {
     {
       slug: 'ux-ui',
       title: 'UX/UI-дизайн',
-      stage: 'design',
       icon: 'grid',
       sortOrder: 20,
       promise: 'Интерфейс, в котором понятно, что делать дальше.',
@@ -192,7 +210,6 @@ const run = async () => {
     {
       slug: 'design-system',
       title: 'Дизайн-система',
-      stage: 'design',
       icon: 'layers',
       sortOrder: 30,
       promise: 'Один источник правды по интерфейсу для дизайна и кода.',
@@ -204,7 +221,6 @@ const run = async () => {
     {
       slug: 'web-development',
       title: 'Веб-разработка',
-      stage: 'development',
       icon: 'core',
       sortOrder: 40,
       promise: 'Быстрый сайт или сервис, который выдерживает нагрузку и правки.',
@@ -213,11 +229,7 @@ const run = async () => {
         { text: 'Сайт медленный и плохо индексируется' },
         { text: 'Каждая правка контента требует разработчика' },
       ],
-      scope: [
-        { text: 'Фронтенд и бэкенд' },
-        { text: 'Интеграция CMS' },
-        { text: 'Тесты и CI' },
-      ],
+      scope: [{ text: 'Фронтенд и бэкенд' }, { text: 'Интеграция CMS' }, { text: 'Тесты и CI' }],
       deliverables: [
         { text: 'Рабочее приложение' },
         { text: 'Админка для контента' },
@@ -227,19 +239,21 @@ const run = async () => {
     {
       slug: 'cms-integration',
       title: 'CMS и контент',
-      stage: 'development',
       icon: 'layers',
       sortOrder: 50,
       promise: 'Контент меняется без участия разработчиков.',
       shortDescription: 'Настройка модели контента, ролей и предпросмотра.',
       clientProblems: [{ text: 'Редакторы боятся что-нибудь сломать' }],
-      scope: [{ text: 'Модель контента' }, { text: 'Роли и права' }, { text: 'Обучение редакторов' }],
+      scope: [
+        { text: 'Модель контента' },
+        { text: 'Роли и права' },
+        { text: 'Обучение редакторов' },
+      ],
       deliverables: [{ text: 'Настроенная CMS' }, { text: 'Инструкция для редактора' }],
     },
     {
       slug: 'support',
       title: 'Поддержка и развитие',
-      stage: 'growth',
       icon: 'signal',
       sortOrder: 60,
       promise: 'После запуска продукт продолжает жить и улучшаться.',
@@ -300,7 +314,11 @@ const run = async () => {
       shortResult: 'Оформление заявки: 14 → 4 мин',
       tags: [{ label: 'Платформа' }, { label: 'Next.js' }, { label: 'Дашборд' }],
       metrics: [
-        { value: '−71%', label: 'Время оформления заявки', source: `Замеры до и после, ${DEMO_NOTE}` },
+        {
+          value: '−71%',
+          label: 'Время оформления заявки',
+          source: `Замеры до и после, ${DEMO_NOTE}`,
+        },
         { value: '3 → 1', label: 'Количество систем у оператора', source: DEMO_NOTE },
       ],
     },
@@ -319,9 +337,7 @@ const run = async () => {
         'Демонстрационный кейс. Пересобрали каталог и оформление заказа, унифицировали компоненты.',
       shortResult: 'LCP 3.9 с → 1.4 с',
       tags: [{ label: 'E-commerce' }, { label: 'Дизайн-система' }],
-      metrics: [
-        { value: '1.4 с', label: 'LCP на мобильных', source: `Lighthouse, ${DEMO_NOTE}` },
-      ],
+      metrics: [{ value: '1.4 с', label: 'LCP на мобильных', source: `Lighthouse, ${DEMO_NOTE}` }],
     },
     {
       slug: 'demo-medical-service',
@@ -424,8 +440,14 @@ const run = async () => {
                 intro: 'Пример блока с закреплённым заголовком и списком шагов.',
                 steps: [
                   { title: 'Discovery', text: 'Интервью с операторами и разбор текущих таблиц.' },
-                  { title: 'Прототип', text: 'Собрали кликабельный прототип и проверили на реальных заявках.' },
-                  { title: 'Разработка', text: 'Собрали интерфейс и подключили к учётной системе.' },
+                  {
+                    title: 'Прототип',
+                    text: 'Собрали кликабельный прототип и проверили на реальных заявках.',
+                  },
+                  {
+                    title: 'Разработка',
+                    text: 'Собрали интерфейс и подключили к учётной системе.',
+                  },
                 ],
               },
             ]
@@ -481,10 +503,26 @@ const run = async () => {
         },
       ],
       processSteps: [
-        { title: 'Разговор', text: 'Обсуждаем задачу и ограничения, оцениваем объём.', duration: '2–3 дня' },
-        { title: 'Discovery', text: 'Сценарии, приоритеты, план по этапам.', duration: '1–2 недели' },
-        { title: 'Дизайн и сборка', text: 'Прототип, интерфейс, разработка итерациями.', duration: 'от 4 недель' },
-        { title: 'Запуск и развитие', text: 'Выкладываем, замеряем, дорабатываем.', duration: 'постоянно' },
+        {
+          title: 'Разговор',
+          text: 'Обсуждаем задачу и ограничения, оцениваем объём.',
+          duration: '2–3 дня',
+        },
+        {
+          title: 'Discovery',
+          text: 'Сценарии, приоритеты, план по этапам.',
+          duration: '1–2 недели',
+        },
+        {
+          title: 'Дизайн и сборка',
+          text: 'Прототип, интерфейс, разработка итерациями.',
+          duration: 'от 4 недель',
+        },
+        {
+          title: 'Запуск и развитие',
+          text: 'Выкладываем, замеряем, дорабатываем.',
+          duration: 'постоянно',
+        },
       ],
       contactHeading: 'Расскажите про задачу',
       contactText:

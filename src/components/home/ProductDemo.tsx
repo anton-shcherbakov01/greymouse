@@ -10,12 +10,22 @@ export const ProductDemo = ({ settings }: { settings: SiteSetting }) => {
   const demoHref = `/demo/analytics?company=${encodeURIComponent(company)}`
   const previewHref = `${demoHref}&embed=1`
 
+  /*
+    Список «кому нужно» редактируется в админке как обычный текст: одна строка —
+    один пункт. Массив полей ради пяти коротких фраз усложнил бы и админку,
+    и схему базы.
+  */
+  const audience = (showcase?.audience ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+
   return (
     <section className="gm-dark gm-section overflow-hidden" aria-labelledby="product-demo-title">
       <div className="gm-container">
         <div className="grid items-end gap-8 md:grid-cols-12 md:gap-[var(--grid-gap)]">
           <Reveal as="div" className="md:col-span-8">
-            <p className="gm-eyebrow">{showcase?.eyebrow || 'Продуктовая лаборатория'}</p>
+            <p className="gm-eyebrow">{showcase?.eyebrow || 'Наш продукт'}</p>
             <h2 id="product-demo-title" className="gm-heading-1 mt-3 max-w-[15ch]">
               {showcase?.title || 'Не картинка, а рабочий продукт.'}
             </h2>
@@ -24,7 +34,7 @@ export const ProductDemo = ({ settings }: { settings: SiteSetting }) => {
           <Reveal as="div" index={1} className="md:col-span-4 md:pb-1">
             <p className="text-[1rem] leading-relaxed text-[var(--fg-muted)]">
               {showcase?.description ||
-                'Интерактивный пульт собственника: выручка, воронка, команда и сделки под риском. Можно открыть и проверить прямо здесь.'}
+                'Показывает, сколько заработали, где застряли сделки, кто из менеджеров тянет и какие клиенты вот-вот уйдут. Открывается прямо здесь — можно потыкать.'}
             </p>
             <ButtonLink href={demoHref} className="mt-6" size="lg">
               {showcase?.ctaLabel || 'Открыть на весь экран'}
@@ -52,10 +62,30 @@ export const ProductDemo = ({ settings }: { settings: SiteSetting }) => {
             />
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-[0.75rem] text-[var(--fg-subtle)]">
-            <span>{showcase?.note || 'Демо-данные · интерфейс интерактивный'}</span>
+            <span>{showcase?.note || 'Данные вымышленные · всё можно нажимать'}</span>
             <span>Нажимайте на графики, фильтры и строки таблиц</span>
           </div>
         </Reveal>
+
+        {audience.length > 0 && (
+          <Reveal as="div" index={3} className="mt-[var(--space-block)]">
+            <div className="grid gap-6 border-t border-[var(--border)] pt-8 md:grid-cols-12 md:gap-[var(--grid-gap)]">
+              <h3 className="gm-heading-3 md:col-span-4">
+                {showcase?.audienceTitle || 'Кому это нужно'}
+              </h3>
+              <ul className="flex flex-wrap gap-2 md:col-span-8">
+                {audience.map((item) => (
+                  <li
+                    key={item}
+                    className="rounded-[var(--radius-pill)] border border-[var(--border)] px-4 py-2 text-[0.9375rem] text-[var(--fg-muted)]"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        )}
       </div>
     </section>
   )

@@ -117,9 +117,9 @@ const demoViews: DashboardView[] = ['overview', 'managers', 'funnel', 'deals']
 const viewMeta: Record<DashboardView, { title: string; subtitle: string }> = {
   overview: { title: 'Пульт собственника', subtitle: 'Продажи' },
   sales: { title: 'Продажи', subtitle: 'Выручка, источники и потерянный потенциал' },
-  funnel: { title: 'Воронка', subtitle: 'Конверсия и скорость движения сделок' },
-  managers: { title: 'Менеджеры', subtitle: 'Результат, качество pipeline и Sales Score' },
-  deals: { title: 'Сделки под риском', subtitle: 'Деньги, которые требуют действия сегодня' },
+  funnel: { title: 'Воронка', subtitle: 'Где сделки застревают и на сколько' },
+  managers: { title: 'Менеджеры', subtitle: 'Кто сколько принёс и как ведёт сделки' },
+  deals: { title: 'Сделки под риском', subtitle: 'Что может сорваться, если не написать сегодня' },
   clients: { title: 'Клиенты', subtitle: 'Выручка, повторные продажи и концентрация' },
   problems: { title: 'Проблемы', subtitle: 'Приоритеты по влиянию на выручку и срочности' },
   data: { title: 'Загрузить данные', subtitle: 'CSV / XLSX · проверка, сопоставление и импорт' },

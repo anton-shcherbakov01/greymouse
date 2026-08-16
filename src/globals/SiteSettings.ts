@@ -187,7 +187,7 @@ export const SiteSettings: GlobalConfig = {
                   name: 'eyebrow',
                   type: 'text',
                   label: 'Надзаголовок',
-                  defaultValue: 'Продуктовая лаборатория',
+                  defaultValue: 'Наш продукт',
                   maxLength: 80,
                 },
                 {
@@ -202,7 +202,7 @@ export const SiteSettings: GlobalConfig = {
                   type: 'textarea',
                   label: 'Описание',
                   defaultValue:
-                    'Интерактивный пульт собственника: выручка, воронка, команда и сделки под риском. Можно открыть и проверить прямо здесь.',
+                    'Показывает, сколько заработали, где застряли сделки, кто из менеджеров тянет и какие клиенты вот-вот уйдут. Открывается прямо здесь — можно потыкать.',
                   maxLength: 420,
                 },
                 {
@@ -220,10 +220,27 @@ export const SiteSettings: GlobalConfig = {
                   maxLength: 80,
                 },
                 {
+                  name: 'audienceTitle',
+                  type: 'text',
+                  label: 'Заголовок блока «кому нужно»',
+                  defaultValue: 'Кому это нужно',
+                  maxLength: 80,
+                },
+                {
+                  name: 'audience',
+                  type: 'textarea',
+                  label: 'Кому это нужно — по строке на пункт',
+                  defaultValue:
+                    'Селлерам на маркетплейсах\nВладельцам кофеен, магазинов, салонов\nРепетиторам и небольшим школам\nСервисам и студиям с постоянными клиентами\nЛюбому делу, где сделки ведут в таблице',
+                  admin: {
+                    description: 'Каждая строка — отдельный пункт. Пусто — блок не показывается.',
+                  },
+                },
+                {
                   name: 'note',
                   type: 'text',
                   label: 'Подпись под демо',
-                  defaultValue: 'Демо-данные · интерфейс интерактивный',
+                  defaultValue: 'Данные вымышленные · всё можно нажимать',
                   maxLength: 120,
                 },
               ],

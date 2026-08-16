@@ -1,6 +1,7 @@
 import { ButtonLink } from '@/components/ui/Button'
 import { Reveal } from '@/components/ui/Reveal'
 import type { SiteSetting } from '@/payload-types'
+import { TelegramIcon } from '@/components/contact/TelegramBurrow'
 
 export const ContactCta = ({ settings }: { settings: SiteSetting }) => (
   <section className="gm-dark gm-section">
@@ -11,9 +12,7 @@ export const ContactCta = ({ settings }: { settings: SiteSetting }) => (
             <h2 className="gm-heading-1 max-w-[14ch]">
               {settings.contactHeading || 'Расскажите про задачу'}
             </h2>
-            {settings.contactText && (
-              <p className="gm-lede mt-5">{settings.contactText}</p>
-            )}
+            {settings.contactText && <p className="gm-lede mt-5">{settings.contactText}</p>}
           </div>
 
           <div className="flex flex-col items-start gap-4 md:col-span-5 md:items-end md:justify-end">
@@ -33,9 +32,12 @@ export const ContactCta = ({ settings }: { settings: SiteSetting }) => (
                 href={settings.telegram}
                 rel="noreferrer noopener"
                 target="_blank"
-                className="text-[0.9375rem] text-[var(--fg-muted)] underline decoration-[var(--border)] underline-offset-4 hover:decoration-[var(--accent)]"
+                className="inline-flex items-center gap-2 text-[0.9375rem] text-[var(--fg-muted)] transition-colors duration-[var(--dur-quick)] hover:text-[var(--fg)]"
               >
-                Telegram
+                <TelegramIcon className="h-[1.15em] w-[1.15em] text-[var(--accent)]" />
+                <span className="underline decoration-[var(--border)] underline-offset-4 group-hover:decoration-[var(--accent)]">
+                  Telegram
+                </span>
               </a>
             )}
           </div>

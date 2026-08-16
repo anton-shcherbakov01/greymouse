@@ -6,7 +6,7 @@ import { BreadcrumbSchema } from '@/components/seo/StructuredData'
 import { ButtonLink } from '@/components/ui/Button'
 import { Reveal } from '@/components/ui/Reveal'
 import { ServiceIcon } from '@/components/ui/ServiceIcon'
-import { groupServicesByStage, STAGE_LABELS } from '@/lib/services'
+import { sortServices } from '@/lib/services'
 import { getPublishedServices, getSiteSettings } from '@/lib/queries'
 import { absoluteUrl } from '@/lib/site'
 import type { Service } from '@/payload-types'
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 const ServicesPage = async () => {
   const [services, settings] = await Promise.all([getPublishedServices(), getSiteSettings()])
-  const grouped = groupServicesByStage(services)
+  const ordered = sortServices(services)
 
   return (
     <>
@@ -37,14 +37,14 @@ const ServicesPage = async () => {
           <div className="mt-4 grid gap-6 md:grid-cols-12 md:gap-[var(--grid-gap)]">
             <h1 className="gm-heading-1 md:col-span-6">Что мы делаем</h1>
             <p className="gm-lede md:col-span-6 md:self-end">
-              Работы сгруппированы по этапам жизненного цикла продукта. Их можно брать
-              целиком или подключаться на любом отдельном этапе.
+              Ниже — всё, чем занимаемся. Услуги можно брать целиком или подключаться к одной
+              задаче.
             </p>
           </div>
         </div>
       </section>
 
-      {grouped.length === 0 ? (
+      {ordered.length === 0 ? (
         <section className="gm-light gm-section">
           <div className="gm-container">
             <p className="gm-heading-3">Услуги пока не заполнены</p>
@@ -54,27 +54,33 @@ const ServicesPage = async () => {
           </div>
         </section>
       ) : (
-        grouped.map(([stage, items], stageIndex) => (
-          <section
-            key={stage}
-            className={`${stageIndex % 2 === 0 ? 'gm-light' : 'gm-dark'} gm-section`}
-          >
+        <>
+          {/*
+            Сетка-обзор: все услуги видны сразу, по три в ряд. Прежняя разбивка
+            по этапам давала секции на одну карточку, и наличие остальных
+            пунктов было неочевидно. Карточки ведут к полному описанию ниже.
+          */}
+          <section className="gm-light gm-section">
             <div className="gm-container">
-              <div className="flex items-baseline gap-5">
-                <span className="font-mono text-[0.8125rem] text-[var(--accent)] tabular-nums">
-                  {String(stageIndex + 1).padStart(2, '0')}
-                </span>
-                <h2 className="gm-heading-2">{STAGE_LABELS[stage]}</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {ordered.map((service, index) => (
+                  <ServiceCard key={service.id} service={service} index={index} />
+                ))}
               </div>
+            </div>
+          </section>
 
+          <section className="gm-dark gm-section">
+            <div className="gm-container">
+              <h2 className="gm-heading-2">Подробно</h2>
               <div className="mt-[var(--space-block)] flex flex-col gap-[var(--space-block)]">
-                {items.map((service, index) => (
+                {ordered.map((service, index) => (
                   <ServiceEntry key={service.id} service={service} index={index} />
                 ))}
               </div>
             </div>
           </section>
-        ))
+        </>
       )}
 
       <section className="gm-dark gm-section">
@@ -92,6 +98,25 @@ const ServicesPage = async () => {
     </>
   )
 }
+
+/** Компактная карточка для сетки-обзора: знак, название, обещание, ссылка вниз. */
+const ServiceCard = ({ service, index }: { service: Service; index: number }) => (
+  <Reveal as="div" index={index} className="h-full">
+    <Link
+      href={`#${service.slug}`}
+      className="group flex h-full flex-col rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-raised)] p-6 transition-colors duration-[var(--dur-quick)] hover:border-[var(--accent)]"
+    >
+      <ServiceIcon name={service.icon} className="shrink-0 text-[var(--accent)]" />
+      <span className="mt-4 block text-[1.25rem] font-medium tracking-[var(--tracking-tight)]">
+        {service.title}
+      </span>
+      <span className="mt-3 block text-[0.9375rem] text-[var(--fg-muted)]">{service.promise}</span>
+      <span className="mt-auto block pt-5 text-[0.8125rem] text-[var(--fg-subtle)] transition-colors duration-[var(--dur-quick)] group-hover:text-[var(--accent)]">
+        Подробнее ↓
+      </span>
+    </Link>
+  </Reveal>
+)
 
 const ServiceEntry = ({ service, index }: { service: Service; index: number }) => {
   const relatedCases = (service.relatedCases ?? []).filter(
@@ -125,7 +150,10 @@ const ServiceEntry = ({ service, index }: { service: Service; index: number }) =
           )}
 
           <div className="grid gap-8 sm:grid-cols-2">
-            <ServiceList title="С чем приходят" items={(service.clientProblems ?? []).map((i) => i.text)} />
+            <ServiceList
+              title="С чем приходят"
+              items={(service.clientProblems ?? []).map((i) => i.text)}
+            />
             <ServiceList title="Состав работ" items={(service.scope ?? []).map((i) => i.text)} />
           </div>
 

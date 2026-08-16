@@ -69,7 +69,7 @@ export function ManagersView({
           </small>
         </div>
         <div>
-          <span>Медиана Sales Score</span>
+          <span>Средняя оценка</span>
           <strong>{medianScore}</strong>
           <small>
             {imported ? 'без компонента плана' : `за ${model.periodLabel.toLowerCase()}`}
@@ -107,7 +107,7 @@ export function ManagersView({
           description={
             imported
               ? 'Score рассчитан по выручке, win rate и гигиене активной воронки; план не загружен'
-              : 'Sales Score объединяет план, конверсию, скорость и качество pipeline'
+              : 'Оценка собирает вместе выполнение плана, долю побед, скорость и то, насколько сделки живые'
           }
           action={
             <div className="table-tools">
@@ -124,7 +124,7 @@ export function ManagersView({
                 <SlidersHorizontal size={14} />
                 <span className="sr-only">Сортировка</span>
                 <select value={sort} onChange={(event) => setSort(event.target.value as SortKey)}>
-                  <option value="score">По Sales Score</option>
+                  <option value="score">По оценке</option>
                   <option value="revenue">По выручке</option>
                   <option value="planRate">По плану</option>
                   <option value="winRate">По win rate</option>
@@ -150,9 +150,9 @@ export function ManagersView({
                 <th>Score</th>
                 <th>Выручка</th>
                 <th>План</th>
-                <th>Pipeline</th>
+                <th>Сделки в работе</th>
                 <th>Сделки</th>
-                <th>Win rate</th>
+                <th>Доля побед</th>
                 <th>Ср. чек</th>
                 <th>Цикл</th>
                 <th>Просрочено</th>
@@ -279,7 +279,7 @@ export function ManagersView({
               </strong>
             </span>
             <span>
-              Win rate{' '}
+              Доля побед{' '}
               <strong>
                 {leader.winRate - averageWinRate >= 0 ? '+' : ''}
                 {(leader.winRate - averageWinRate).toFixed(1)} п.п.

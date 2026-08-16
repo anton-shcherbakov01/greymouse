@@ -760,10 +760,6 @@ export interface Service {
    */
   slug: string;
   /**
-   * Этап жизненного цикла. «AI и автоматизация» включайте только если это реальная услуга студии.
-   */
-  stage: 'research' | 'design' | 'development' | 'growth' | 'ai';
-  /**
    * Схематичный знак в карточке услуги.
    */
   icon?: ('signal' | 'grid' | 'layers' | 'path' | 'core') | null;
@@ -1204,7 +1200,6 @@ export interface ServicesSelect<T extends boolean = true> {
         noindex?: T;
       };
   slug?: T;
-  stage?: T;
   icon?: T;
   visual?: T;
   sortOrder?: T;
@@ -1476,6 +1471,11 @@ export interface SiteSetting {
     description?: string | null;
     companyName?: string | null;
     ctaLabel?: string | null;
+    audienceTitle?: string | null;
+    /**
+     * Каждая строка — отдельный пункт. Пусто — блок не показывается.
+     */
+    audience?: string | null;
     note?: string | null;
   };
   contactHeading?: string | null;
@@ -1625,6 +1625,8 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         description?: T;
         companyName?: T;
         ctaLabel?: T;
+        audienceTitle?: T;
+        audience?: T;
         note?: T;
       };
   contactHeading?: T;

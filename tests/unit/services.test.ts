@@ -1,34 +1,38 @@
 import { describe, expect, it } from 'vitest'
 
-import { groupServicesByStage, STAGE_LABELS, STAGE_ORDER } from '@/lib/services'
+import { sortServices } from '@/lib/services'
 import type { Service } from '@/payload-types'
 
-const service = (id: number, stage: Service['stage']): Service =>
-  ({ id, stage, title: `Услуга ${id}`, slug: `s-${id}` }) as Service
+const service = (id: number, sortOrder?: number, title = `Услуга ${id}`): Service =>
+  ({ id, title, slug: `s-${id}`, sortOrder }) as Service
 
-describe('groupServicesByStage', () => {
-  it('сохраняет порядок этапов жизненного цикла', () => {
-    const grouped = groupServicesByStage([
-      service(1, 'growth'),
-      service(2, 'research'),
-      service(3, 'development'),
-    ])
-    expect(grouped.map(([stage]) => stage)).toEqual(['research', 'development', 'growth'])
+describe('sortServices', () => {
+  it('сортирует по полю «Порядок»', () => {
+    const sorted = sortServices([service(1, 30), service(2, 10), service(3, 20)])
+    expect(sorted.map((item) => item.id)).toEqual([2, 3, 1])
   })
 
-  it('не возвращает пустые этапы', () => {
-    const grouped = groupServicesByStage([service(1, 'design')])
-    expect(grouped).toHaveLength(1)
-    expect(grouped[0]?.[0]).toBe('design')
+  it('при равном порядке сортирует по названию по-русски', () => {
+    const sorted = sortServices([
+      service(1, 10, 'Ядро'),
+      service(2, 10, 'Аудит'),
+      service(3, 10, 'Ёмкость'),
+    ])
+    expect(sorted.map((item) => item.title)).toEqual(['Аудит', 'Ёмкость', 'Ядро'])
+  })
+
+  it('услуги без порядка уходят в конец к значению по умолчанию', () => {
+    const sorted = sortServices([service(1), service(2, 5)])
+    expect(sorted.map((item) => item.id)).toEqual([2, 1])
+  })
+
+  it('не изменяет исходный массив', () => {
+    const input = [service(1, 30), service(2, 10)]
+    sortServices(input)
+    expect(input.map((item) => item.id)).toEqual([1, 2])
   })
 
   it('на пустом списке возвращает пустой массив', () => {
-    expect(groupServicesByStage([])).toEqual([])
-  })
-
-  it('для каждого этапа есть человекочитаемая подпись', () => {
-    STAGE_ORDER.forEach((stage) => {
-      expect(STAGE_LABELS[stage]).toBeTruthy()
-    })
+    expect(sortServices([])).toEqual([])
   })
 })

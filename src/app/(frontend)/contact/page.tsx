@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 import { ContactForm } from '@/components/contact/ContactForm'
+import { TelegramBurrow } from '@/components/contact/TelegramBurrow'
 import { BreadcrumbSchema } from '@/components/seo/StructuredData'
 import { getSiteSettings } from '@/lib/queries'
 import { absoluteUrl } from '@/lib/site'
@@ -55,15 +56,8 @@ const ContactPage = async () => {
                   </li>
                 )}
                 {settings.telegram && (
-                  <li>
-                    <a
-                      href={settings.telegram}
-                      rel="noreferrer noopener"
-                      target="_blank"
-                      className="text-[0.9375rem] text-[var(--fg-muted)] underline decoration-[var(--border)] underline-offset-4 hover:decoration-[var(--accent)]"
-                    >
-                      Telegram
-                    </a>
+                  <li className="pt-2">
+                    <TelegramBurrow href={settings.telegram} />
                   </li>
                 )}
                 {settings.phone && (

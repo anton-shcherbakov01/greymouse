@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { Wordmark } from '@/components/brand/Wordmark'
+import { TelegramIcon } from '@/components/contact/TelegramBurrow'
 import { SITE_DOMAIN_DISPLAY } from '@/lib/site'
 import { getNavigation, getSiteSettings } from '@/lib/queries'
 
@@ -18,18 +19,40 @@ export const Footer = async () => {
 
         <div className="grid gap-12 md:grid-cols-[minmax(18rem,1.8fr)_repeat(2,minmax(8rem,0.7fr))] md:gap-10">
           <div className="max-w-xl">
-            <Wordmark logo={settings.logo} size="presentation" />
+            {/* Логотип в подвале — тоже ссылка на главную: посетитель ждёт этого. */}
+            <Link
+              href="/"
+              aria-label="Серая Мышь — на главную"
+              className="inline-flex rounded-[var(--radius-md)] transition-opacity duration-[var(--dur-quick)] hover:opacity-80"
+            >
+              <Wordmark logo={settings.logo} size="presentation" />
+            </Link>
             <p className="mt-6 max-w-md text-[clamp(1rem,1.2vw,1.25rem)] leading-relaxed text-[var(--fg-muted)]">
               {settings.footerText || 'Тихо делаем заметные цифровые продукты.'}
             </p>
-            {settings.email && (
-              <a
-                href={`mailto:${settings.email}`}
-                className="mt-6 inline-block text-[1.125rem] tracking-[var(--tracking-tight)] underline decoration-[var(--accent)] underline-offset-4"
-              >
-                {settings.email}
-              </a>
-            )}
+            <div className="mt-6 flex flex-col items-start gap-3">
+              {settings.email && (
+                <a
+                  href={`mailto:${settings.email}`}
+                  className="text-[1.125rem] tracking-[var(--tracking-tight)] underline decoration-[var(--accent)] underline-offset-4"
+                >
+                  {settings.email}
+                </a>
+              )}
+              {settings.telegram && (
+                <a
+                  href={settings.telegram}
+                  rel="noreferrer noopener"
+                  target="_blank"
+                  className="inline-flex items-center gap-2 text-[0.9375rem] text-[var(--fg-muted)] transition-colors duration-[var(--dur-quick)] hover:text-[var(--fg)]"
+                >
+                  <TelegramIcon className="h-[1.15em] w-[1.15em] text-[var(--accent)]" />
+                  <span className="underline decoration-[var(--border)] underline-offset-4">
+                    Telegram
+                  </span>
+                </a>
+              )}
+            </div>
           </div>
 
           {groups.slice(0, 2).map((group) => (

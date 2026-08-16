@@ -1,22 +1,18 @@
 import type { Service } from '@/payload-types'
 
-export type ServiceStage = NonNullable<Service['stage']>
-
-export const STAGE_ORDER: ServiceStage[] = ['research', 'design', 'development', 'growth', 'ai']
-
-export const STAGE_LABELS: Record<ServiceStage, string> = {
-  research: 'Исследование и стратегия',
-  design: 'UX/UI и дизайн',
-  development: 'Разработка',
-  growth: 'Запуск и развитие',
-  ai: 'AI и автоматизация',
-}
-
 /**
- * Группировка услуг по этапам жизненного цикла проекта.
- * Пустые этапы не возвращаются — пустых секций на странице быть не должно.
+ * Порядок услуг на сайте.
+ *
+ * Раньше услуги группировались по этапам жизненного цикла продукта, и каждый
+ * этап становился отдельной секцией. На практике этапов оказывалось больше,
+ * чем услуг: секция на одну карточку читалась как «здесь всё», и наличие
+ * остальных пунктов было неочевидно. Теперь порядок задаётся только полем
+ * «Порядок» в админке, а на странице услуги стоят сеткой — видно все сразу.
  */
-export const groupServicesByStage = (services: Service[]): Array<[ServiceStage, Service[]]> =>
-  STAGE_ORDER.map(
-    (stage) => [stage, services.filter((service) => service.stage === stage)] as const,
-  ).filter((entry): entry is [ServiceStage, Service[]] => entry[1].length > 0)
+export const sortServices = (services: Service[]): Service[] =>
+  [...services].sort((a, b) => {
+    const orderA = a.sortOrder ?? 100
+    const orderB = b.sortOrder ?? 100
+    if (orderA !== orderB) return orderA - orderB
+    return (a.title ?? '').localeCompare(b.title ?? '', 'ru')
+  })

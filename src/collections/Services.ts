@@ -10,7 +10,7 @@ export const Services: CollectionConfig = {
   labels: { singular: 'Услуга', plural: 'Услуги' },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'stage', 'sortOrder', 'published'],
+    defaultColumns: ['title', 'sortOrder', 'published'],
     group: 'Контент',
     description: 'Услуги студии, сгруппированные по этапам жизненного цикла проекта.',
   },
@@ -117,25 +117,6 @@ export const Services: CollectionConfig = {
       ],
     },
     slugField(),
-    {
-      name: 'stage',
-      type: 'select',
-      label: 'Этап',
-      required: true,
-      defaultValue: 'design',
-      options: [
-        { label: '1. Исследование и стратегия', value: 'research' },
-        { label: '2. UX/UI и дизайн', value: 'design' },
-        { label: '3. Разработка', value: 'development' },
-        { label: '4. Запуск и развитие', value: 'growth' },
-        { label: '5. AI и автоматизация', value: 'ai' },
-      ],
-      admin: {
-        position: 'sidebar',
-        description:
-          'Этап жизненного цикла. «AI и автоматизация» включайте только если это реальная услуга студии.',
-      },
-    },
     {
       name: 'icon',
       type: 'select',

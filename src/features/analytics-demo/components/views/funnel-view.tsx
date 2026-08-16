@@ -65,7 +65,7 @@ export function FunnelView({
           </small>
         </div>
         <div>
-          <span>Pipeline</span>
+          <span>Сделки в работе</span>
           <strong>{formatRub(imported?.pipeline ?? model.funnelSummary.pipeline, true)}</strong>
           <small>
             {formatRub(imported?.weightedPipeline ?? model.funnelSummary.weightedPipeline, true)}{' '}

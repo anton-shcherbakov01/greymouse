@@ -237,12 +237,12 @@ function ManagerDetail({
           <small>{imported ? 'нет в импорте' : formatRub(manager.plan, true)}</small>
         </div>
         <div>
-          <span>Win rate</span>
+          <span>Доля побед</span>
           <strong>{manager.winRate.toFixed(1)}%</strong>
           <small>{signed(manager.winRate - teamWinRate, ' п.п.')} к команде</small>
         </div>
         <div>
-          <span>Pipeline</span>
+          <span>Сделки в работе</span>
           <strong>{formatRub(manager.pipeline, true)}</strong>
           <small>{manager.stale} сделок без движения</small>
         </div>
@@ -307,14 +307,14 @@ function ManagerDetail({
           {imported ? (
             <>
               <div>
-                <span>Sales Score</span>
+                <span>Оценка</span>
                 <i>
                   <em style={{ width: `${manager.score}%` }} />
                 </i>
                 <strong>{signed(manager.score - teamScore, ' п.')}</strong>
               </div>
               <div>
-                <span>Win rate</span>
+                <span>Доля побед</span>
                 <i>
                   <em style={{ width: `${Math.min(manager.winRate * 2, 100)}%` }} />
                 </i>
@@ -349,7 +349,7 @@ function ManagerDetail({
                 <strong>{signed(demoComparisons?.planPoints ?? 0, ' п.п.')}</strong>
               </div>
               <div>
-                <span>Win rate</span>
+                <span>Доля побед</span>
                 <i>
                   <em style={{ width: `${Math.min(manager.winRate * 2, 100)}%` }} />
                 </i>

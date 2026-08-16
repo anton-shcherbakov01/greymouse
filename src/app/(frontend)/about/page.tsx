@@ -5,7 +5,7 @@ import { Process } from '@/components/home/Process'
 import { BreadcrumbSchema } from '@/components/seo/StructuredData'
 import { ButtonLink } from '@/components/ui/Button'
 import { Reveal } from '@/components/ui/Reveal'
-import { groupServicesByStage, STAGE_LABELS } from '@/lib/services'
+import { sortServices } from '@/lib/services'
 import { getPublishedServices, getSiteSettings, getTeam } from '@/lib/queries'
 import { absoluteUrl } from '@/lib/site'
 
@@ -22,7 +22,7 @@ const AboutPage = async () => {
     getPublishedServices(),
   ])
   const principles = settings.principles ?? []
-  const competencies = groupServicesByStage(services)
+  const competencies = sortServices(services)
 
   return (
     <>
@@ -72,16 +72,16 @@ const AboutPage = async () => {
           <div className="gm-container">
             <h2 className="gm-heading-2 max-w-[16ch]">Компетенции</h2>
             <dl className="mt-[var(--space-block)] flex flex-col">
-              {competencies.map(([stage, items], index) => (
+              {competencies.map((service, index) => (
                 <Reveal
                   as="div"
-                  key={stage}
+                  key={service.id}
                   index={index}
                   className="grid gap-3 border-t border-[var(--border)] py-6 last:border-b md:grid-cols-12 md:gap-[var(--grid-gap)]"
                 >
-                  <dt className="gm-heading-3 md:col-span-4">{STAGE_LABELS[stage]}</dt>
+                  <dt className="gm-heading-3 md:col-span-4">{service.title}</dt>
                   <dd className="text-[0.9375rem] text-[var(--fg-muted)] md:col-span-8">
-                    {items.map((service) => service.title).join(' · ')}
+                    {service.promise}
                   </dd>
                 </Reveal>
               ))}
