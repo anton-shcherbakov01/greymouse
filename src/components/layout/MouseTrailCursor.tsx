@@ -3,21 +3,24 @@
 import { useEffect, useRef } from 'react'
 
 const INTERACTIVE_SELECTOR = 'a, button, [role="button"], select, summary'
-/*
-  Над обычным текстом системная каретка полезнее точки: по ней видно, что текст
-  можно выделить. Поэтому здесь не только поля ввода, но и абзацы, заголовки и
-  списки — над ними точка прячется, а CSS возвращает `cursor: text`.
-*/
-const TEXT_SELECTOR =
-  'input, textarea, [contenteditable="true"], p, li, h1, h2, h3, h4, h5, h6, blockquote, figcaption, dd, dt, td, th, label'
+const FIELD_SELECTOR = 'input, textarea, [contenteditable="true"]'
+
+/** Число звеньев хвоста. Больше — плавнее изгиб и дороже кадр. */
+const JOINTS = 12
+/** Насколько быстро каждое звено догоняет предыдущее. */
+const FOLLOW = 0.42
 
 /**
- * Небольшая сигнальная точка с серым хвостом — десктопная часть айдентики.
+ * Небольшая сигнальная точка с гибким хвостом — десктопная часть айдентики.
  * На touch-устройствах и при reduced motion остаётся системный указатель.
+ *
+ * Хвост — цепочка звеньев: каждое догоняет предыдущее, поэтому на повороте он
+ * изгибается, а не остаётся отрезком. Рисуется одним SVG-путём по средним
+ * точкам — так линия получается гладкой без изломов на стыках.
  */
 export const MouseTrailCursor = () => {
   const dotRef = useRef<HTMLSpanElement>(null)
-  const tailRef = useRef<HTMLSpanElement>(null)
+  const pathRef = useRef<SVGPathElement>(null)
 
   useEffect(() => {
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)')
@@ -25,89 +28,126 @@ export const MouseTrailCursor = () => {
     if (!finePointer.matches || reducedMotion.matches) return
 
     const dot = dotRef.current
-    const tail = tailRef.current
-    if (!dot || !tail) return
+    const path = pathRef.current
+    if (!dot || !path) return
 
+    const root = document.documentElement
     document.body.classList.add('gm-custom-cursor')
 
-    let targetX = -100
-    let targetY = -100
-    let tailX = -100
-    let tailY = -100
-    let length = 0
-    let angle = 0
+    let pointerX = -100
+    let pointerY = -100
+    let visible = false
+    let overText = false
     let frame = 0
 
-    /*
-      Хвост крепится к самой точке и растёт назад по направлению движения:
-      раньше он рисовался в отстающей позиции и «отрывался» от точки, из-за
-      чего казался болтающимся отдельно.
+    const joints = Array.from({ length: JOINTS }, () => ({ x: -100, y: -100 }))
 
-      Длина и угол сглаживаются отдельно от позиции. Угол пересчитывается
-      только при заметном смещении: на почти остановившемся курсоре atan2
-      скачет от шума и хвост дёргается.
-    */
+    /**
+     * Точное определение текста под курсором.
+     *
+     * Правило `cursor: text` на абзацах и заголовках не годится: блок занимает
+     * всю ширину колонки, и каретка появлялась в пустоте справа от короткого
+     * заголовка. Здесь проверяется, что точка попала именно в прямоугольник
+     * строки текстового узла.
+     */
+    const isOverText = (x: number, y: number): boolean => {
+      const doc = document as Document & {
+        caretRangeFromPoint?: (x: number, y: number) => Range | null
+      }
+      const node = doc.caretRangeFromPoint?.(x, y)?.startContainer
+      if (!node || node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) return false
+
+      const range = document.createRange()
+      range.selectNodeContents(node)
+      return Array.from(range.getClientRects()).some(
+        (rect) => x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom,
+      )
+    }
+
+    const setOverText = (next: boolean) => {
+      if (next === overText) return
+      overText = next
+      root.classList.toggle('gm-cursor-over-text', next)
+      dot.dataset.hidden = String(next)
+      path.dataset.hidden = String(next)
+    }
+
     const draw = () => {
-      tailX += (targetX - tailX) * 0.16
-      tailY += (targetY - tailY) * 0.16
+      const head = joints[0]!
+      head.x += (pointerX - head.x) * 0.55
+      head.y += (pointerY - head.y) * 0.55
 
-      const dx = targetX - tailX
-      const dy = targetY - tailY
-      const distance = Math.hypot(dx, dy)
-
-      if (distance > 0.6) {
-        // Направление «назад»: от точки к отстающей позиции.
-        const next = Math.atan2(-dy, -dx) * (180 / Math.PI)
-        const delta = ((next - angle + 540) % 360) - 180
-        angle += delta * 0.35
+      for (let i = 1; i < joints.length; i += 1) {
+        const previous = joints[i - 1]!
+        const current = joints[i]!
+        current.x += (previous.x - current.x) * FOLLOW
+        current.y += (previous.y - current.y) * FOLLOW
       }
 
-      length += (Math.min(34, distance * 1.6) - length) * 0.2
+      // Путь по средним точкам: каждое звено становится опорной точкой
+      // квадратичной кривой, стыки получаются без изломов.
+      let d = `M ${head.x.toFixed(1)} ${head.y.toFixed(1)}`
+      for (let i = 1; i < joints.length - 1; i += 1) {
+        const current = joints[i]!
+        const next = joints[i + 1]!
+        d += ` Q ${current.x.toFixed(1)} ${current.y.toFixed(1)} ${((current.x + next.x) / 2).toFixed(1)} ${((current.y + next.y) / 2).toFixed(1)}`
+      }
 
-      dot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`
-      tail.style.width = `${length.toFixed(2)}px`
-      tail.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) rotate(${angle.toFixed(2)}deg)`
+      path.setAttribute('d', d)
+      dot.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0)`
       frame = requestAnimationFrame(draw)
     }
 
     const onMove = (event: PointerEvent) => {
-      targetX = event.clientX
-      targetY = event.clientY
-      dot.dataset.visible = 'true'
-      tail.dataset.visible = 'true'
-    }
-    const onOver = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return
+      pointerX = event.clientX
+      pointerY = event.clientY
+
+      if (!visible) {
+        visible = true
+        // Хвост при первом появлении собирается в точке, иначе он прилетает
+        // через весь экран из стартовой позиции.
+        joints.forEach((joint) => {
+          joint.x = pointerX
+          joint.y = pointerY
+        })
+        dot.dataset.visible = 'true'
+        path.dataset.visible = 'true'
+      }
+
       const target = event.target instanceof Element ? event.target : null
-      // Интерактивное важнее текстового: у ссылки внутри абзаца должна быть
-      // точка, а не каретка.
-      const isInteractive = Boolean(target?.closest(INTERACTIVE_SELECTOR))
-      const isText = !isInteractive && Boolean(target?.closest(TEXT_SELECTOR))
-      dot.dataset.hidden = String(isText)
-      tail.dataset.hidden = String(isText)
-      dot.dataset.interactive = String(isInteractive)
+      const interactive = Boolean(target?.closest(INTERACTIVE_SELECTOR))
+      dot.dataset.interactive = String(interactive)
+      setOverText(
+        !interactive &&
+          (Boolean(target?.closest(FIELD_SELECTOR)) || isOverText(pointerX, pointerY)),
+      )
     }
+
     const onLeave = () => {
+      visible = false
       dot.dataset.visible = 'false'
-      tail.dataset.visible = 'false'
+      path.dataset.visible = 'false'
     }
 
     window.addEventListener('pointermove', onMove, { passive: true })
-    window.addEventListener('pointerover', onOver, { passive: true })
-    document.documentElement.addEventListener('mouseleave', onLeave)
+    root.addEventListener('mouseleave', onLeave)
     frame = requestAnimationFrame(draw)
 
     return () => {
       cancelAnimationFrame(frame)
       window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerover', onOver)
-      document.documentElement.removeEventListener('mouseleave', onLeave)
+      root.removeEventListener('mouseleave', onLeave)
+      root.classList.remove('gm-cursor-over-text')
       document.body.classList.remove('gm-custom-cursor')
     }
   }, [])
 
   return (
     <>
-      <span ref={tailRef} className="gm-cursor-tail" aria-hidden="true" />
+      <svg className="gm-cursor-trail" aria-hidden="true">
+        <path ref={pathRef} data-visible="false" />
+      </svg>
       <span ref={dotRef} className="gm-cursor-dot" aria-hidden="true" />
     </>
   )

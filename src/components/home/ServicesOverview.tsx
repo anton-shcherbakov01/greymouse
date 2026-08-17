@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { ServiceIcon } from '@/components/ui/ServiceIcon'
+import { ServiceCard } from '@/components/services/ServiceCard'
 import { Reveal } from '@/components/ui/Reveal'
 import { sortServices } from '@/lib/services'
 import type { Service } from '@/payload-types'
@@ -31,20 +31,13 @@ export const ServicesOverview = ({ services }: { services: Service[] }) => {
         */}
         <ul className="mt-[var(--space-block)] grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {ordered.map((service, index) => (
-            <Reveal as="li" key={service.id} index={index}>
-              <Link
+            <Reveal as="li" key={service.id} index={index} className="h-full">
+              <ServiceCard
+                service={service}
+                index={index}
                 href={`/services#${service.slug}`}
-                className="group flex h-full flex-col rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-raised)] p-6 transition-colors duration-[var(--dur-quick)] hover:border-[var(--accent)]"
-              >
-                <ServiceIcon
-                  name={service.icon}
-                  className="shrink-0 text-[var(--fg-subtle)] transition-colors group-hover:text-[var(--accent)]"
-                />
-                <span className="mt-4 block font-medium text-[1.125rem]">{service.title}</span>
-                <span className="mt-2 block text-[0.9375rem] text-[var(--fg-muted)]">
-                  {service.promise}
-                </span>
-              </Link>
+                action="Смотреть"
+              />
             </Reveal>
           ))}
         </ul>

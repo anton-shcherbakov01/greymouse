@@ -29,7 +29,7 @@ export const ContactForm = ({ consentText }: { consentText: string }) => {
   }, [state])
 
   return (
-    <form ref={formRef} action={formAction} noValidate className="flex flex-col gap-6">
+    <form ref={formRef} action={formAction} noValidate className="flex flex-col gap-4">
       <input ref={renderedAtRef} type="hidden" name="renderedAt" defaultValue="0" />
 
       {/* Ловушка для ботов: скрыта визуально и от скринридеров, но заполняется автоматикой. */}
@@ -52,7 +52,7 @@ export const ContactForm = ({ consentText }: { consentText: string }) => {
         required
         error={state.fieldErrors.contact}
       />
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Field
           name="company"
           label="Компания"
@@ -131,12 +131,12 @@ const Field = ({
     'aria-invalid': error ? (true as const) : undefined,
     'aria-describedby': describedBy || undefined,
     className:
-      'w-full resize-y bg-transparent py-2 text-[1.0625rem] outline-none placeholder:text-[var(--fg-subtle)]',
+      'w-full resize-y bg-transparent py-0.5 text-[1rem] outline-none placeholder:text-[var(--fg-subtle)]',
   }
 
   return (
     <div
-      className={`group/field flex flex-col gap-1.5 rounded-[var(--radius-md)] border bg-[var(--bg-raised)] px-4 py-3.5 transition-[border-color,box-shadow,background-color] duration-[var(--dur-quick)] focus-within:border-[var(--accent)] focus-within:shadow-[0_0_0_1px_var(--accent)] ${
+      className={`group/field flex flex-col gap-0.5 rounded-[var(--radius-md)] border bg-[var(--bg-raised)] px-3.5 py-2.5 transition-[border-color,box-shadow,background-color] duration-[var(--dur-quick)] focus-within:border-[var(--accent)] focus-within:shadow-[0_0_0_1px_var(--accent)] ${
         error ? 'border-[var(--gm-danger)]' : 'border-[var(--border)]'
       }`}
     >
@@ -144,7 +144,7 @@ const Field = ({
         {label}
         {required && <span className="text-[var(--accent)]"> *</span>}
       </label>
-      {multiline ? <textarea rows={5} {...shared} /> : <input type="text" {...shared} />}
+      {multiline ? <textarea rows={4} {...shared} /> : <input type="text" {...shared} />}
       {hint && (
         <p id={hintId} className="text-[0.8125rem] text-[var(--fg-subtle)]">
           {hint}
@@ -164,7 +164,7 @@ const ConsentField = ({ text, error }: { text: string; error?: string }) => {
   const errorId = `${id}-error`
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-1">
       <div className="flex items-start gap-3">
         <input
           id={id}

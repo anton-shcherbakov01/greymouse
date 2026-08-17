@@ -28,17 +28,16 @@ export const Header = async () => {
 
         <nav aria-label="Основная навигация" className="hidden md:block">
           {/*
-            Отрицательные внешние отступы гасят внутренние: расстояние между
-            пунктами на глаз прежнее, но кликабельная область каждого выросла
-            до полной высоты шапки — попадать в тонкую строку текста курсором
-            было неудобно.
+            Кликабельная область чуть больше строки текста, но не во всю высоту
+            шапки: полная высота оказалась избыточной — курсор ловил пункт
+            задолго до того, как подходил к нему.
           */}
           <ul className="-mx-3 flex items-center gap-1">
             {items.map((item) => (
               <li key={item.id}>
                 <Link
                   href={item.href}
-                  className="flex h-[var(--header-height)] items-center rounded-[var(--radius-md)] px-3 text-[0.9375rem] text-[var(--fg-muted)] transition-colors duration-[var(--dur-quick)] hover:text-[var(--fg)] focus-visible:text-[var(--fg)]"
+                  className="flex h-9 items-center rounded-[var(--radius-md)] px-3 text-[0.9375rem] text-[var(--fg-muted)] transition-colors duration-[var(--dur-quick)] hover:text-[var(--fg)] focus-visible:text-[var(--fg)]"
                 >
                   {item.label}
                 </Link>

@@ -5,6 +5,7 @@ import { hasRichTextContent, RichText } from '@/components/blocks/RichText'
 import { BreadcrumbSchema } from '@/components/seo/StructuredData'
 import { ButtonLink } from '@/components/ui/Button'
 import { Reveal } from '@/components/ui/Reveal'
+import { ServiceCard } from '@/components/services/ServiceCard'
 import { ServiceIcon } from '@/components/ui/ServiceIcon'
 import { sortServices } from '@/lib/services'
 import { getPublishedServices, getSiteSettings } from '@/lib/queries'
@@ -64,7 +65,9 @@ const ServicesPage = async () => {
             <div className="gm-container">
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {ordered.map((service, index) => (
-                  <ServiceCard key={service.id} service={service} index={index} />
+                  <Reveal as="div" key={service.id} index={index} className="h-full">
+                    <ServiceCard service={service} index={index} href={`#${service.slug}`} />
+                  </Reveal>
                 ))}
               </div>
             </div>
@@ -98,25 +101,6 @@ const ServicesPage = async () => {
     </>
   )
 }
-
-/** Компактная карточка для сетки-обзора: знак, название, обещание, ссылка вниз. */
-const ServiceCard = ({ service, index }: { service: Service; index: number }) => (
-  <Reveal as="div" index={index} className="h-full">
-    <Link
-      href={`#${service.slug}`}
-      className="group flex h-full flex-col rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-raised)] p-6 transition-colors duration-[var(--dur-quick)] hover:border-[var(--accent)]"
-    >
-      <ServiceIcon name={service.icon} className="shrink-0 text-[var(--accent)]" />
-      <span className="mt-4 block text-[1.25rem] font-medium tracking-[var(--tracking-tight)]">
-        {service.title}
-      </span>
-      <span className="mt-3 block text-[0.9375rem] text-[var(--fg-muted)]">{service.promise}</span>
-      <span className="mt-auto block pt-5 text-[0.8125rem] text-[var(--fg-subtle)] transition-colors duration-[var(--dur-quick)] group-hover:text-[var(--accent)]">
-        Подробнее ↓
-      </span>
-    </Link>
-  </Reveal>
-)
 
 const ServiceEntry = ({ service, index }: { service: Service; index: number }) => {
   const relatedCases = (service.relatedCases ?? []).filter(

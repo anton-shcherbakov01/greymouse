@@ -33,7 +33,7 @@ const ContactPage = async () => {
           {settings.contactText && <p className="gm-lede mt-6">{settings.contactText}</p>}
 
           <div className="mt-[var(--space-block)] grid gap-[var(--space-block)] md:grid-cols-12 md:gap-[var(--grid-gap)]">
-            <div className="md:col-span-7">
+            <div className="md:col-span-6">
               <ContactForm
                 consentText={
                   settings.consentText ||
@@ -42,7 +42,7 @@ const ContactPage = async () => {
               />
             </div>
 
-            <aside className="md:col-span-4 md:col-start-9">
+            <aside className="md:col-span-5 md:col-start-8">
               <h2 className="gm-eyebrow">Напрямую</h2>
               <ul className="mt-4 flex flex-col gap-3">
                 {settings.email && (

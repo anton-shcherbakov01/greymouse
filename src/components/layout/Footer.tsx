@@ -46,7 +46,7 @@ export const Footer = async () => {
                   target="_blank"
                   className="inline-flex items-center gap-2 text-[0.9375rem] text-[var(--fg-muted)] transition-colors duration-[var(--dur-quick)] hover:text-[var(--fg)]"
                 >
-                  <TelegramIcon className="h-[1.15em] w-[1.15em] text-[var(--accent)]" />
+                  <TelegramIcon className="h-[1.15em] w-[1.15em]" />
                   <span className="underline decoration-[var(--border)] underline-offset-4">
                     Telegram
                   </span>
